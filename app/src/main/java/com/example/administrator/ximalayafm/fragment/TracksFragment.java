@@ -45,7 +45,9 @@ public class TracksFragment extends BaseFragment {
     private Context mContext;
     private GridView mListView;
     private TrackAdapter mTrackAdapter;
+    private ArrayAdapter listAdapter;
     private ListView listview;
+    private List<String> list =  new ArrayList<>();
     private int mPageId = 1;
     private TrackHotList mTrackHotList = null;
     private boolean mLoading = false;
@@ -120,17 +122,20 @@ public class TracksFragment extends BaseFragment {
         }
         return true;
     }
+    private Long category_id = 1l;
+    private List<Category> categories;
     private void getCategory(){
         Map<String, String> map = new HashMap<String, String>();
         CommonRequest.getCategories(map, new IDataCallBack<CategoryList>() {
             @Override
             public void onSuccess(CategoryList object) {
-                List<Category> categories = object.getCategories();
-                List<String> list = new ArrayList<String>();
-                for (Category category : categories) {
-                    list.add(category.getCategoryName());
+                categories = object.getCategories();
+                if (categories.size()>0){
+                    for (Category category : categories) {
+                        list.add(category.getCategoryName());
+                    }
+                    listAdapter.notifyDataSetChanged();
                 }
-                listview.setAdapter(new ArrayAdapter<String>(getContext(),R.layout.support_simple_spinner_dropdown_item,list));
             }
 
             @Override
@@ -144,28 +149,40 @@ public class TracksFragment extends BaseFragment {
         }
         mLoading = true;
         Map<String, String> param = new HashMap<String, String>();
-        param.put(DTransferConstants.CATEGORY_ID, "" + 1);
+        param.put(DTransferConstants.CATEGORY_ID, "" + category_id);
         param.put(DTransferConstants.PAGE, "" + mPageId);
         param.put(DTransferConstants.PAGE_SIZE, "" + 200);
         CommonRequest.getHotTracks(param, new IDataCallBack<TrackHotList>() {
-
             @Override
             public void onSuccess(TrackHotList object) {
-                Log.e(TAG, "onSuccess " + (object != null));
+                Log.e(TAG, "onSuccess obj === " + (object != null));
+                Log.e(TAG, "onSuccess: obj.getTracks()!=null === "+(object.getTracks() != null));
+                Log.e(TAG, "onSuccess:object.getTracks().size() != 0 === "+(object.getTracks().size() != 0));
+                List tracks = new ArrayList();
+                if (object.getTracks().size()==0){
+                    tracks.add(object.getCategoryId());
+                    for (Object track : tracks) {
+                        Log.e(TAG, "onSuccess:category_Id ==== "+track +"   ");
+                    }
+                }
                 if (object != null && object.getTracks() != null && object.getTracks().size() != 0) {
                     mPageId++;
-                    if (mTrackHotList == null) {
+//                    if (mTrackHotList == null) {
                         mTrackHotList = object;
-                    } else {
-                        mTrackHotList.getTracks().addAll(object.getTracks());
-                    }
+//                    } else {
+//                        mTrackHotList.getTracks().addAll(object.getTracks());
+//                    }
                     mTrackAdapter.notifyDataSetChanged();
                 }
 
                 List<Track> list = mTrackHotList.getTracks();
+
                 List li = new ArrayList();
                 for (int i = 0; i < list.size(); i++) {
-                    li.add(list.get(i).getPlayUrl64M4a());
+//                    li.add(list.get(i).getPlayUrl64M4a());
+                    Track sound = list.get(i);
+//                    Log.e(TAG, "onSuccess____TrackName"+sound.getTrackTitle());
+                    li.add( sound.getAnnouncer() == null ? sound.getTrackTags() : sound.getAnnouncer().getNickname());
                 }
 
                 System.out.println(li);
@@ -186,7 +203,6 @@ public class TracksFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.activity_main, container, false);
         mListView = (GridView) view.findViewById(R.id.list);
         listview =(ListView) view.findViewById(R.id.listview);
-        getCategory();
         return view;
     }
 
@@ -203,8 +219,9 @@ public class TracksFragment extends BaseFragment {
         mPlayerManager.addPlayerStatusListener(mPlayerStatusListener);
 
         mTrackAdapter = new TrackAdapter();
+        listAdapter = new ArrayAdapter<String>(getContext(),R.layout.support_simple_spinner_dropdown_item,list);
         mListView.setAdapter(mTrackAdapter);
-
+        listview.setAdapter(listAdapter);
         mListView.setOnScrollListener(new OnScrollListener() {
 
             @Override
@@ -232,7 +249,14 @@ public class TracksFragment extends BaseFragment {
 //                mPlayerManager.playList(mTrackHotList.getTracks().subList(0 ,1), 0);
             }
         });
-
+        listview.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                category_id = categories.get(i).getId();
+                loadData();
+            }
+        });
+        getCategory();
         loadData();
     }
 
