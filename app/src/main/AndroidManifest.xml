@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.administrator.ximalayafm">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <meta-data
+        android:name="app_key"
+        android:value="d4df2a6e290d27e29bf1bedc06cf8daf"/>
+    <meta-data
+        android:name="pack_id"
+        android:value="com.example.administrator.ximalayafm"/>
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/icon"
+        android:label="@string/app_name"
+        android:name=".TingApplication"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+
+        </activity>
+        <activity
+            android:name=".MainFragmentActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 授权Activity -->
+        <activity
+            android:name="com.ximalaya.ting.android.opensdk.auth.component.XmlyBrowserComponent"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- 购买Activity -->
+        <activity
+            android:name="com.ximalaya.ting.android.xmpayordersdk.XmPayOrderActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity android:name=".download.DownloadTrackActivity" ></activity>
+        <activity android:name=".download.DownloadActivity"></activity>
+        <activity android:name=".download.BatchDownloadActivity"></activity>
+        <activity android:name=".XMAuthDemoActivity"/>
+        <activity android:name=".pay.PayActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <service android:name="com.ximalaya.ting.android.opensdk.player.service.XmPlayerService" android:exported="true" android:process=":player" >
+        </service>
+
+        <receiver
+            android:name="com.ximalaya.ting.android.opensdk.player.receive.PlayerReceiver" android:exported="true" android:process=":player">
+            <intent-filter>
+                <action android:name="com.ximalaya.ting.android.ACTION_CONTROL_START_PAUSE" />
+                <action android:name="com.ximalaya.ting.android.ACTION_CONTROL_PLAY_PRE" />
+                <action android:name="com.ximalaya.ting.android.ACTION_CONTROL_PLAY_NEXT" />
+                <action android:name="com.ximalaya.ting.android.ACTION_CLOSE" />
+                <action android:name="com.ximalaya.ting.android.ACTION_CONTROL_RELEASE_SERVICE" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.ximalaya.ting.android.opensdk.player.receive.WireControlReceiver"
+            android:process=":player"
+            android:exported="true" />
+
+        <receiver android:name=".reciver.MyPlayerReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.app.test.android.Action_Close"/>
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
