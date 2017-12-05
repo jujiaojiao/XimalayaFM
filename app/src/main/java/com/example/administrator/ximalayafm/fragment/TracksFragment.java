@@ -252,12 +252,6 @@ public class TracksFragment extends BaseFragment {
         listview.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TracksFragment df = new TracksFragment();
-                if (df!=null){
-                    FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();//注意。一个transaction 只能commit一次，所以不要定义成全局变量
-                    fragmentTransaction.replace(R.id.relative, df);
-                    fragmentTransaction.commit();
-                }
                 category_id = categories.get(i).getId();
                 mPageId = 1;
                 loadData();
