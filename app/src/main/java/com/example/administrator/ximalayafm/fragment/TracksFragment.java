@@ -149,30 +149,11 @@ public class TracksFragment extends BaseFragment {
             }
         });
     }
-    private void getAlbum(){
-        Map<String, String> map = new HashMap<String, String>();
-        map.put(DTransferConstants.CATEGORY_ID, ""+0);
-        map.put(DTransferConstants.TYPE, ""+1);
-        CommonRequest.getTags(map, new IDataCallBack<TagList>() {
-            @Override
-            public void onSuccess(@Nullable TagList tagList) {
-                Log.e("Album", "onSuccess: "+tagList.getTagList().size());
-                List<Tag> tagList1 = tagList.getTagList();
-                for (Tag tag : tagList1) {
-                    Log.e("Album", "Tag=====: "+tag.getTagName());
-                }
-            }
-
-            @Override
-            public void onError(int i, String s) {
-                Log.e("Album", "onError: ");
-            }
-        });
-    }
     private void loadData() {
         if (mLoading) {
             return;
         }
+//        mPageId=1;
         mLoading = true;
         Map<String, String> param = new HashMap<String, String>();
         param.put(DTransferConstants.CATEGORY_ID, "" + category_id);
@@ -181,21 +162,13 @@ public class TracksFragment extends BaseFragment {
         CommonRequest.getHotTracks(param, new IDataCallBack<TrackHotList>() {
             @Override
             public void onSuccess(TrackHotList object) {
-                Log.e(TAG, "onSuccess obj === " + (object != null));
-                Log.e(TAG, "onSuccess: obj.getTracks()!=null === "+(object.getTracks() != null));
-                Log.e(TAG, "onSuccess:object.getTracks().size() != 0 === "+(object.getTracks().size() != 0));
+                Log.e("pageid", "onSuccess: "+mPageId);
                 if (object != null && object.getTracks() != null && object.getTracks().size() != 0) {
                     mPageId++;
-//                    if (mTrackHotList == null) {
-                        mTrackHotList = object;
-//                    } else {
-//                        mTrackHotList.getTracks().addAll(object.getTracks());
-//                    }
+                    mTrackHotList = object;
                     mTrackAdapter.notifyDataSetChanged();
                 }
-
                 List<Track> list = mTrackHotList.getTracks();
-
                 List li = new ArrayList();
                 for (int i = 0; i < list.size(); i++) {
 //                    li.add(list.get(i).getPlayUrl64M4a());
@@ -221,7 +194,6 @@ public class TracksFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.activity_main, container, false);
         mListView = (GridView) view.findViewById(R.id.list);
         listview =(ListView) view.findViewById(R.id.listview);
-        getAlbum();
         return view;
     }
 
@@ -263,16 +235,12 @@ public class TracksFragment extends BaseFragment {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Collections.shuffle(mTrackHotList.getTracks());
 //                mPlayerManager.playList(mTrackHotList, position);
+//                mPlayerManager.playList(mTrackHotList.getTracks().subList(0 ,1), 0);
                 SubordinatedAlbum album = mTrackHotList.getTracks().get(position).getAlbum();
                 long albumId = album.getAlbumId();
-//                Intent intent = new Intent(getContext(),AlbumListFragment.class);
-//                intent.putExtra("albumid",albumId);
-//                getContext().startActivity(intent);
-//                mPlayerManager.playList(mTrackHotList.getTracks().subList(0 ,1), 0);
-                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();//注意。一个transaction 只能commit一次，所以不要定义成全局变量
                 AlbumListFragment df = new AlbumListFragment();
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();//注意。一个transaction 只能commit一次，所以不要定义成全局变量
                 Bundle bundle = new Bundle();
                 bundle.putLong("id", albumId);
                 df.setArguments(bundle);
@@ -284,7 +252,14 @@ public class TracksFragment extends BaseFragment {
         listview.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                TracksFragment df = new TracksFragment();
+                if (df!=null){
+                    FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();//注意。一个transaction 只能commit一次，所以不要定义成全局变量
+                    fragmentTransaction.replace(R.id.relative, df);
+                    fragmentTransaction.commit();
+                }
                 category_id = categories.get(i).getId();
+                mPageId = 1;
                 loadData();
             }
         });
