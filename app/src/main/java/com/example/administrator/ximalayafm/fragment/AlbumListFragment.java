@@ -1,10 +1,13 @@
 package com.example.administrator.ximalayafm.fragment;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +36,7 @@ import com.ximalaya.ting.android.opensdk.player.service.XmPlayerException;
 import org.xutils.x;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,8 +45,9 @@ import java.util.Map;
 
 public class AlbumListFragment extends BaseFragment {
     private static final String TAG = "AlbumListFragment";
-    private Context mContext;
-    private GridView mListView;
+    private Context mContext   = getContext();
+    ;
+    private ListView mListView;
     private TrackAdapter mTrackAdapter;
 
     private int mPageId = 1;
@@ -104,6 +109,7 @@ public class AlbumListFragment extends BaseFragment {
         }
 
     };
+    private long albumid;
 
     public void refresh() {
         Log.e(TAG, "---refresh");
@@ -127,7 +133,8 @@ public class AlbumListFragment extends BaseFragment {
         Map<String, String> param = new HashMap<String, String>();
         param.put(DTransferConstants.PAGE, "" + mPageId);
         param.put(DTransferConstants.PAGE_SIZE, "" + 100);
-        param.put(DTransferConstants.ALBUM_ID, 239463+"");
+//        param.put(DTransferConstants.ALBUM_ID, 239463+"");
+        param.put(DTransferConstants.ALBUM_ID, albumid+"");
         CommonRequest.getTracks(param, new IDataCallBack<TrackList>() {
             @Override
             public void onSuccess(TrackList trackList) {
@@ -153,11 +160,73 @@ public class AlbumListFragment extends BaseFragment {
         });
     }
 
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        if (mPlayerManager != null) {
+//            mPlayerManager.removePlayerStatusListener(mPlayerStatusListener);
+//        }
+//    }
+
+//    @Override
+//    protected void onCreate(@Nullable Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_main);
+//        mListView = ((GridView) findViewById(R.id.list));
+//        initView();
+//    }
+//    private void initView(){
+//        Intent intent = getIntent();
+//        albumid = intent.getLongExtra("albumid", 0);
+//        mXimalaya = CommonRequest.getInstanse();
+//        mPlayerManager = XmPlayerManager.getInstance(mContext);
+//
+//        mPlayerManager.addPlayerStatusListener(mPlayerStatusListener);
+//
+//        mTrackAdapter = new TrackAdapter();
+//        mListView.setAdapter(mTrackAdapter);
+//
+//        mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+//
+//            @Override
+//            public void onScrollStateChanged(AbsListView view, int scrollState) {
+//                if (scrollState == SCROLL_STATE_IDLE) {
+//                    int count = view.getCount();
+//                    count = count - 5 > 0 ? count - 5 : count - 1;
+//                    if (view.getLastVisiblePosition() > count && (mTrackHotList == null || mPageId <= mTrackHotList.getTotalPage())) {
+//                        loadData();
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+//            }
+//        });
+//
+//        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, final long id) {
+//                mPlayerManager.playList(mTrackHotList, position);
+//
+//                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        System.out.println("担待是哪个  ===  " + mPlayerManager.hasNextSound()  + "      " + mPlayerManager.getPlayList().size() + "    ");
+//                    }
+//                } ,2000);
+//            }
+//        });
+//
+//        loadData();
+//    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        View view = inflater.inflate(R.layout.activity_main, container, false);
-        mListView = (GridView) view.findViewById(R.id.list);
+        View view = inflater.inflate(R.layout.fragment_albumlist, container, false);
+        mListView = (ListView) view.findViewById(R.id.listview_albumlist);
+        Bundle bundle = getArguments();
+        albumid = bundle.getLong("id");
         return view;
     }
 
@@ -166,7 +235,6 @@ public class AlbumListFragment extends BaseFragment {
         Log.i(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
 
-        mContext = getActivity();
 
         mXimalaya = CommonRequest.getInstanse();
         mPlayerManager = XmPlayerManager.getInstance(mContext);
@@ -220,6 +288,8 @@ public class AlbumListFragment extends BaseFragment {
         super.onDestroyView();
     }
 
+
+
     public class TrackAdapter extends BaseAdapter {
 
         @Override
@@ -245,7 +315,7 @@ public class AlbumListFragment extends BaseFragment {
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder holder;
             if (convertView == null) {
-                convertView = LayoutInflater.from(mContext).inflate(R.layout.track_content, parent, false);
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.album_item, parent, false);
                 holder = new ViewHolder();
                 holder.content = (ViewGroup) convertView;
                 holder.cover = (ImageView) convertView.findViewById(R.id.imageview);

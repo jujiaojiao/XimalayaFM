@@ -1,8 +1,11 @@
 package com.example.administrator.ximalayafm.fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,8 +28,11 @@ import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
 import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack;
 import com.ximalaya.ting.android.opensdk.model.PlayableModel;
+import com.ximalaya.ting.android.opensdk.model.album.SubordinatedAlbum;
 import com.ximalaya.ting.android.opensdk.model.category.Category;
 import com.ximalaya.ting.android.opensdk.model.category.CategoryList;
+import com.ximalaya.ting.android.opensdk.model.tag.Tag;
+import com.ximalaya.ting.android.opensdk.model.tag.TagList;
 import com.ximalaya.ting.android.opensdk.model.track.Track;
 import com.ximalaya.ting.android.opensdk.model.track.TrackHotList;
 import com.ximalaya.ting.android.opensdk.player.XmPlayerManager;
@@ -143,6 +149,26 @@ public class TracksFragment extends BaseFragment {
             }
         });
     }
+    private void getAlbum(){
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(DTransferConstants.CATEGORY_ID, ""+0);
+        map.put(DTransferConstants.TYPE, ""+1);
+        CommonRequest.getTags(map, new IDataCallBack<TagList>() {
+            @Override
+            public void onSuccess(@Nullable TagList tagList) {
+                Log.e("Album", "onSuccess: "+tagList.getTagList().size());
+                List<Tag> tagList1 = tagList.getTagList();
+                for (Tag tag : tagList1) {
+                    Log.e("Album", "Tag=====: "+tag.getTagName());
+                }
+            }
+
+            @Override
+            public void onError(int i, String s) {
+                Log.e("Album", "onError: ");
+            }
+        });
+    }
     private void loadData() {
         if (mLoading) {
             return;
@@ -158,13 +184,6 @@ public class TracksFragment extends BaseFragment {
                 Log.e(TAG, "onSuccess obj === " + (object != null));
                 Log.e(TAG, "onSuccess: obj.getTracks()!=null === "+(object.getTracks() != null));
                 Log.e(TAG, "onSuccess:object.getTracks().size() != 0 === "+(object.getTracks().size() != 0));
-                List tracks = new ArrayList();
-                if (object.getTracks().size()==0){
-                    tracks.add(object.getCategoryId());
-                    for (Object track : tracks) {
-                        Log.e(TAG, "onSuccess:category_Id ==== "+track +"   ");
-                    }
-                }
                 if (object != null && object.getTracks() != null && object.getTracks().size() != 0) {
                     mPageId++;
 //                    if (mTrackHotList == null) {
@@ -181,7 +200,6 @@ public class TracksFragment extends BaseFragment {
                 for (int i = 0; i < list.size(); i++) {
 //                    li.add(list.get(i).getPlayUrl64M4a());
                     Track sound = list.get(i);
-//                    Log.e(TAG, "onSuccess____TrackName"+sound.getTrackTitle());
                     li.add( sound.getAnnouncer() == null ? sound.getTrackTags() : sound.getAnnouncer().getNickname());
                 }
 
@@ -203,6 +221,7 @@ public class TracksFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.activity_main, container, false);
         mListView = (GridView) view.findViewById(R.id.list);
         listview =(ListView) view.findViewById(R.id.listview);
+        getAlbum();
         return view;
     }
 
@@ -245,8 +264,21 @@ public class TracksFragment extends BaseFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //                Collections.shuffle(mTrackHotList.getTracks());
-                mPlayerManager.playList(mTrackHotList, position);
+//                mPlayerManager.playList(mTrackHotList, position);
+                SubordinatedAlbum album = mTrackHotList.getTracks().get(position).getAlbum();
+                long albumId = album.getAlbumId();
+//                Intent intent = new Intent(getContext(),AlbumListFragment.class);
+//                intent.putExtra("albumid",albumId);
+//                getContext().startActivity(intent);
 //                mPlayerManager.playList(mTrackHotList.getTracks().subList(0 ,1), 0);
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();//注意。一个transaction 只能commit一次，所以不要定义成全局变量
+                AlbumListFragment df = new AlbumListFragment();
+                Bundle bundle = new Bundle();
+                bundle.putLong("id", albumId);
+                df.setArguments(bundle);
+                fragmentTransaction.replace(R.id.fragment, df);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
             }
         });
         listview.setOnItemClickListener(new OnItemClickListener() {

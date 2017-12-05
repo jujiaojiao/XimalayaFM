@@ -347,12 +347,14 @@ public class MainFragmentActivity extends FragmentActivity {
                     mScheduleFragment = new ScheduleFragment();
                 }
                 f = mScheduleFragment;
-            } else if(4 == position) {
-                if(mAlbumListFragment == null) {
-                    mAlbumListFragment = new AlbumListFragment();//专辑
-                }
-                f = mAlbumListFragment;
-            } else if(3 == position) {
+            }
+//            else if(4 == position) {
+//                if(mAlbumListFragment == null) {
+//                    mAlbumListFragment = new AlbumListFragment();//专辑
+//                }
+//                f = mAlbumListFragment;
+//            }
+            else if(3 == position) {
                 if(mPayTrackFragment == null) {
                     mPayTrackFragment = new PayTrackFragment();//付费
                 }
@@ -423,10 +425,10 @@ public class MainFragmentActivity extends FragmentActivity {
                         mCurrFragment.refresh();
                     }
                 }  else if(arg0 == 3) {
-                    mCurrFragment = mAlbumListFragment;
-                    if(mCurrFragment != null) {
-                        mCurrFragment.refresh();
-                    }
+//                    mCurrFragment = mAlbumListFragment;
+//                    if(mCurrFragment != null) {
+//                        mCurrFragment.refresh();
+//                    }
                 }
                 else {
                     mCurrFragment = null;

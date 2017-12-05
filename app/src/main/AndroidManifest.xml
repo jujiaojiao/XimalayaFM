@@ -48,7 +48,6 @@
             android:configChanges="keyboardHidden|orientation"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-
         <activity android:name=".download.DownloadTrackActivity" ></activity>
         <activity android:name=".download.DownloadActivity"></activity>
         <activity android:name=".download.BatchDownloadActivity"></activity>
