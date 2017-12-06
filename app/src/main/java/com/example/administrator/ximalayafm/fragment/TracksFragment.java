@@ -35,6 +35,7 @@ import com.ximalaya.ting.android.opensdk.model.tag.Tag;
 import com.ximalaya.ting.android.opensdk.model.tag.TagList;
 import com.ximalaya.ting.android.opensdk.model.track.Track;
 import com.ximalaya.ting.android.opensdk.model.track.TrackHotList;
+import com.ximalaya.ting.android.opensdk.model.track.TrackList;
 import com.ximalaya.ting.android.opensdk.player.XmPlayerManager;
 import com.ximalaya.ting.android.opensdk.player.service.IXmPlayerStatusListener;
 import com.ximalaya.ting.android.opensdk.player.service.XmPlayerException;
@@ -53,11 +54,13 @@ public class TracksFragment extends BaseFragment {
     private TrackAdapter mTrackAdapter;
     private ArrayAdapter listAdapter;
     private ListView listview;
+    private long albumId;
     private List<String> list =  new ArrayList<>();
     private int mPageId = 1;
     private TrackHotList mTrackHotList = null;
+    private TrackList mTrackList = null;
     private boolean mLoading = false;
-
+    private  AlbumListFragment df ;
     private CommonRequest mXimalaya;
     private XmPlayerManager mPlayerManager;
 
@@ -166,6 +169,11 @@ public class TracksFragment extends BaseFragment {
                 if (object != null && object.getTracks() != null && object.getTracks().size() != 0) {
                     mPageId++;
                     mTrackHotList = object;
+                    if(df!=null){
+                        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                        fragmentTransaction.remove(df).commit();
+                        df=null;
+                    }
                     mTrackAdapter.notifyDataSetChanged();
                 }
                 List<Track> list = mTrackHotList.getTracks();
@@ -233,13 +241,14 @@ public class TracksFragment extends BaseFragment {
 
         mListView.setOnItemClickListener(new OnItemClickListener() {
 
+
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //                mPlayerManager.playList(mTrackHotList, position);
 //                mPlayerManager.playList(mTrackHotList.getTracks().subList(0 ,1), 0);
                 SubordinatedAlbum album = mTrackHotList.getTracks().get(position).getAlbum();
-                long albumId = album.getAlbumId();
-                AlbumListFragment df = new AlbumListFragment();
+                albumId = album.getAlbumId();
+                df = new AlbumListFragment();
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();//注意。一个transaction 只能commit一次，所以不要定义成全局变量
                 Bundle bundle = new Bundle();
                 bundle.putLong("id", albumId);
