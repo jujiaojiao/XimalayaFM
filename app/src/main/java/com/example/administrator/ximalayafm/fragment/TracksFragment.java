@@ -52,7 +52,7 @@ public class TracksFragment extends BaseFragment {
     private Context mContext;
     private GridView mListView;
     private TrackAdapter mTrackAdapter;
-    private ArrayAdapter listAdapter;
+    private ListViewAdapter listAdapter;
     private ListView listview;
     private long albumId;
     private List<String> list =  new ArrayList<>();
@@ -146,7 +146,6 @@ public class TracksFragment extends BaseFragment {
                     listAdapter.notifyDataSetChanged();
                 }
             }
-
             @Override
             public void onError(int code, String message) {
             }
@@ -218,7 +217,7 @@ public class TracksFragment extends BaseFragment {
         mPlayerManager.addPlayerStatusListener(mPlayerStatusListener);
 
         mTrackAdapter = new TrackAdapter();
-        listAdapter = new ArrayAdapter<String>(getContext(),R.layout.support_simple_spinner_dropdown_item,list);
+        listAdapter = new ListViewAdapter();
         mListView.setAdapter(mTrackAdapter);
         listview.setAdapter(listAdapter);
         mListView.setOnScrollListener(new OnScrollListener() {
@@ -261,6 +260,12 @@ public class TracksFragment extends BaseFragment {
         listview.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                int id = view.getId();
+                if (id==itemId){
+                    view.setBackgroundColor(Color.GRAY);
+                }else{
+                    view.setBackgroundColor(Color.WHITE);
+                }
                 category_id = categories.get(i).getId();
                 mPageId = 1;
                 loadData();
@@ -269,7 +274,7 @@ public class TracksFragment extends BaseFragment {
         getCategory();
         loadData();
     }
-
+    private int itemId = -1;
     @Override
     public void onDestroyView() {
         Log.i(TAG, "onDestroyView");
@@ -278,7 +283,41 @@ public class TracksFragment extends BaseFragment {
         }
         super.onDestroyView();
     }
+    public class ListViewAdapter extends BaseAdapter{
 
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return list.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            ViewHolder holder;
+            if (view == null) {
+                view = LayoutInflater.from(mContext).inflate(R.layout.list_item, viewGroup, false);
+                holder = new ViewHolder();
+                holder.textView = (TextView) view.findViewById(R.id.textview);
+                view.setTag(holder);
+            } else {
+                holder = (ViewHolder) view.getTag();
+            }
+            holder.textView.setText(list.get(i));
+          return view;
+        }
+        class ViewHolder {
+            TextView textView;
+        }
+    }
     public class TrackAdapter extends BaseAdapter {
 
         @Override

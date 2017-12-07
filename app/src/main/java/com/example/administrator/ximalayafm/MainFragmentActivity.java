@@ -8,18 +8,23 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -36,6 +41,10 @@ import com.example.administrator.ximalayafm.fragment.TracksFragment;
 import com.example.administrator.ximalayafm.fragment.base.BaseFragment;
 import com.example.administrator.ximalayafm.pay.PayActivity;
 import com.example.administrator.ximalayafm.util.ToolUtil;
+import com.example.administrator.ximalayafm.view.ViewFindUtils;
+import com.flyco.tablayout.SegmentTabLayout;
+import com.flyco.tablayout.listener.OnTabSelectListener;
+import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
 import com.ximalaya.ting.android.opensdk.datatrasfer.AccessTokenManager;
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
 import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack;
@@ -45,6 +54,7 @@ import com.ximalaya.ting.android.opensdk.model.advertis.AdvertisList;
 import com.ximalaya.ting.android.opensdk.model.category.CategoryList;
 import com.ximalaya.ting.android.opensdk.model.live.radio.Radio;
 import com.ximalaya.ting.android.opensdk.model.live.schedule.Schedule;
+import com.ximalaya.ting.android.opensdk.model.track.SearchTrackList;
 import com.ximalaya.ting.android.opensdk.model.track.Track;
 import com.ximalaya.ting.android.opensdk.player.XmPlayerManager;
 import com.ximalaya.ting.android.opensdk.player.advertis.IXmAdsStatusListener;
@@ -58,6 +68,7 @@ import com.ximalaya.ting.android.sdkdownloader.XmDownloadManager;
 import org.xutils.x;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -69,14 +80,14 @@ import java.util.Map;
  * @see
  * @since Ver 1.1
  */
-public class MainFragmentActivity extends FragmentActivity {
-    private static final String[] CONTENT = new String[]{"点播", "直播", "分类" ,"付费","专辑" };
+public class MainFragmentActivity extends FragmentActivity implements View.OnKeyListener, ViewPager.OnPageChangeListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
+    private static final String[] CONTENT = new String[]{"点播", "直播", "推荐" ,"付费","专辑" };
     private static final String TAG = "MainFragmentActivity";
 
     private TextView mTextView;
-    private ImageButton mBtnPreSound;
-    private ImageButton mBtnPlay;
-    private ImageButton mBtnNextSound;
+    private ImageView mBtnPreSound;
+    private ImageView mBtnPlay;
+    private ImageView mBtnNextSound;
     private SeekBar mSeekBar;
     private ImageView mSoundCover;
     private ProgressBar mProgress;
@@ -97,7 +108,9 @@ public class MainFragmentActivity extends FragmentActivity {
     private AlbumListFragment mAlbumListFragment;
     private PayTrackFragment mPayTrackFragment;
     private BaseFragment mCurrFragment;
-    private Toolbar toolbar;
+    private EditText search;
+    private SegmentTabLayout tabLayout;
+    private View mDecorView;
 
     @Override
     protected void onCreate(Bundle arg0) {
@@ -106,7 +119,6 @@ public class MainFragmentActivity extends FragmentActivity {
         initView();
         // 是否使用防劫持方案
 //        XmPlayerConfig.getInstance(this).usePreventHijack(false);
-
         mPlayerManager = XmPlayerManager.getInstance(mContext);
         Notification mNotification = XmNotificationCreater.getInstanse(this).initNotification(this.getApplicationContext(), MainFragmentActivity.class);
 
@@ -209,13 +221,13 @@ public class MainFragmentActivity extends FragmentActivity {
         @Override
         public void onPlayStop() {
             Log.i(TAG, "onPlayStop");
-            mBtnPlay.setImageResource(R.drawable.widget_play_normal);
+            mBtnPlay.setImageResource(R.mipmap.play);
         }
 
         @Override
         public void onPlayStart() {
             Log.i(TAG, "onPlayStart");
-            mBtnPlay.setImageResource(R.drawable.widget_pause_normal);
+            mBtnPlay.setImageResource(R.mipmap.pause);
         }
 
         @Override
@@ -240,20 +252,20 @@ public class MainFragmentActivity extends FragmentActivity {
         @Override
         public void onPlayPause() {
             Log.i(TAG, "onPlayPause");
-            mBtnPlay.setImageResource(R.drawable.widget_play_normal);
+            mBtnPlay.setImageResource(R.mipmap.play);
         }
 
         @Override
         public void onSoundPlayComplete() {
             Log.i(TAG, "onSoundPlayComplete");
-            mBtnPlay.setImageResource(R.drawable.widget_play_normal);
+            mBtnPlay.setImageResource(R.mipmap.play);
             XmPlayerManager.getInstance(mContext).pause();
         }
 
         @Override
         public boolean onError(XmPlayerException exception) {
             Log.i(TAG, "onError " + exception.getMessage());
-            mBtnPlay.setImageResource(R.drawable.widget_play_normal);
+            mBtnPlay.setImageResource(R.mipmap.play);
             return false;
         }
 
@@ -323,6 +335,28 @@ public class MainFragmentActivity extends FragmentActivity {
         }
     };
 
+    /**
+     * 搜索接口
+     * @param searchText 要查询的字符串
+     */
+    private void getSearch(String searchText){
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(DTransferConstants.SEARCH_KEY, searchText);
+        CommonRequest.getSearchedTracks(map, new IDataCallBack<SearchTrackList>(){
+            @Override
+            public void onSuccess(@Nullable SearchTrackList searchTrackList) {
+                List<Track> tracks = searchTrackList.getTracks();
+                for (Track track : tracks) {
+                    Log.e(TAG, "onSuccess:search::::::: "+track.getAnnouncer());
+                }
+            }
+
+            @Override
+            public void onError(int i, String s) {
+
+            }
+        });
+    }
 
     class SlidingPagerAdapter extends FragmentPagerAdapter {
         public SlidingPagerAdapter(FragmentManager fm) {
@@ -348,12 +382,12 @@ public class MainFragmentActivity extends FragmentActivity {
                 }
                 f = mScheduleFragment;
             }
-//            else if(4 == position) {
-//                if(mAlbumListFragment == null) {
-//                    mAlbumListFragment = new AlbumListFragment();//专辑
-//                }
-//                f = mAlbumListFragment;
-//            }
+            else if(4 == position) {
+                if(mAlbumListFragment == null) {
+                    mAlbumListFragment = new AlbumListFragment();//专辑
+                }
+                f = mAlbumListFragment;
+            }
             else if(3 == position) {
                 if(mPayTrackFragment == null) {
                     mPayTrackFragment = new PayTrackFragment();//付费
@@ -374,6 +408,96 @@ public class MainFragmentActivity extends FragmentActivity {
         }
     }
 
+    private void initView() {
+        setContentView(R.layout.act_main);
+        mContext = MainFragmentActivity.this;
+        //findviewByid
+        search = ((EditText) findViewById(R.id.edit_text_main));
+//        tabLayout = ((SegmentTabLayout) findViewById(R.id.indicator));
+        mTextView = (TextView) findViewById(R.id.message);
+        mBtnPreSound = (ImageView) findViewById(R.id.pre_sound);
+        mBtnPlay = (ImageView) findViewById(R.id.play_or_pause);
+        mBtnNextSound = (ImageView) findViewById(R.id.next_sound);
+        mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
+        mSoundCover = (ImageView) findViewById(R.id.sound_cover);
+        mProgress = (ProgressBar) findViewById(R.id.buffering_progress);
+        mDecorView = getWindow().getDecorView();
+        tabLayout = ViewFindUtils.find(mDecorView, R.id.indicator);
+        //创建Tab
+//        mAdapter = new SlidingPagerAdapter(getSupportFragmentManager());
+//        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+//        tabLayout.addTab(tabLayout.newTab().setText(CONTENT[0]));
+//        tabLayout.addTab(tabLayout.newTab().setText(CONTENT[1]));
+//        tabLayout.addTab(tabLayout.newTab().setText(CONTENT[2]));
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+//        mViewPager.setAdapter(mAdapter);
+//        tabLayout.setupWithViewPager(mViewPager, true);
+        tl_3();
+        //各类监听事件
+        search.setOnKeyListener(this);
+        mViewPager.setOnPageChangeListener(this);
+        mSeekBar.setOnSeekBarChangeListener(this);
+        mBtnPreSound.setOnClickListener(this);
+        mBtnPlay.setOnClickListener(this);
+        mBtnNextSound.setOnClickListener(this);
+    }
+
+    private void tl_3() {
+//        final ViewPager vp_3 = ViewFindUtils.find(mDecorView, R.id.vp_2);
+        mAdapter = new SlidingPagerAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(mAdapter);
+        tabLayout.setTabData(CONTENT);
+        tabLayout.setOnTabSelectListener(new OnTabSelectListener() {
+            @Override
+            public void onTabSelect(int position) {
+                mViewPager.setCurrentItem(position);
+            }
+
+            @Override
+            public void onTabReselect(int position) {
+            }
+        });
+
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                tabLayout.setCurrentTab(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        mViewPager.setCurrentItem(0);
+    }
+    @Override
+    public void onClick(View view) {
+        int id = view.getId();
+        switch (id) {
+            case R.id.pre_sound:
+                mPlayerManager.playPre();
+                break;
+            case R.id.play_or_pause:
+                if (mPlayerManager.isPlaying()) {
+                    mPlayerManager.pause();
+                } else {
+                    mPlayerManager.play();
+                }
+                break;
+            case R.id.next_sound:
+                mPlayerManager.playNext();
+                break;
+        }
+
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -384,114 +508,6 @@ public class MainFragmentActivity extends FragmentActivity {
         menu.add(0 ,3 ,0 ,"测试2");
         return super.onCreateOptionsMenu(menu);
     }
-
-    private void initView() {
-//        ActionBar actionBar = getActionBar();
-//
-//        actionBar.setBackgroundDrawable(new ColorDrawable(Color.RED));
-//        actionBar.setDisplayShowHomeEnabled(false);
-//        actionBar.setTitle("Open SDK Demo");
-
-        setContentView(R.layout.act_main);
-        mContext = MainFragmentActivity.this;
-
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mIndicator = (PagerTabStrip) findViewById(R.id.indicator);
-        mTextView = (TextView) findViewById(R.id.message);
-        mBtnPreSound = (ImageButton) findViewById(R.id.pre_sound);
-        mBtnPlay = (ImageButton) findViewById(R.id.play_or_pause);
-        mBtnNextSound = (ImageButton) findViewById(R.id.next_sound);
-        mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
-        mSoundCover = (ImageView) findViewById(R.id.sound_cover);
-        mProgress = (ProgressBar) findViewById(R.id.buffering_progress);
-//        toolbar = ((Toolbar) findViewById(R.id.toolbar_main));
-        mViewPager.setOffscreenPageLimit(2);
-        mIndicator.setTabIndicatorColor(Color.RED);
-        mIndicator.setTextColor(Color.RED);
-
-        mAdapter = new SlidingPagerAdapter(getSupportFragmentManager());
-        mViewPager.setAdapter(mAdapter);
-
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageSelected(int arg0) {
-                if (arg0 == 0) {
-                    mCurrFragment = mTracksFragment;
-                } else if (arg0 == 1) {
-                    mCurrFragment = mRadiosFragment;
-                } else if (arg0 == 2) {
-                    mCurrFragment = mScheduleFragment;
-                    if (mCurrFragment != null) {
-                        mCurrFragment.refresh();
-                    }
-                }  else if(arg0 == 3) {
-//                    mCurrFragment = mAlbumListFragment;
-//                    if(mCurrFragment != null) {
-//                        mCurrFragment.refresh();
-//                    }
-                }
-                else {
-                    mCurrFragment = null;
-                }
-            }
-
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-                System.out.println("淡定  ===  ");
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int arg0) {
-
-            }
-        });
-
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                mPlayerManager.seekToByPercent(seekBar.getProgress() / (float) seekBar.getMax());
-                mUpdateProgress = true;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                mUpdateProgress = false;
-            }
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            }
-        });
-
-        mBtnPreSound.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                mPlayerManager.playPre();
-            }
-        });
-
-        mBtnPlay.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                if (mPlayerManager.isPlaying()) {
-                    mPlayerManager.pause();
-                } else {
-                    mPlayerManager.play();
-                }
-            }
-        });
-
-        mBtnNextSound.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPlayerManager.playNext();
-            }
-        });
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
@@ -504,9 +520,66 @@ public class MainFragmentActivity extends FragmentActivity {
         } else if(itemId == 3) {
             XmPlayerManager.getInstance(MainFragmentActivity.this).hasPreSound();
         }
-
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public boolean onKey(View view, int i, KeyEvent keyEvent) {
+        //这里注意要作判断处理，ActionDown、ActionUp都会回调到这里，不作处理的话就会调用两次
+        if (KeyEvent.KEYCODE_ENTER == i && KeyEvent.ACTION_DOWN == keyEvent.getAction()) {
+            //处理事件
+            //调取搜索声音接口
+            getSearch(search.getText().toString());
+            return true;
+        }
+        return false;
+    }
 
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        if (position == 0) {
+            mCurrFragment = mTracksFragment;
+        } else if (position == 1) {
+            mCurrFragment = mRadiosFragment;
+        } else if (position == 2) {
+            mCurrFragment = mScheduleFragment;
+            if (mCurrFragment != null) {
+                mCurrFragment.refresh();
+            }
+        }  else if(position == 3) {
+            mCurrFragment = mAlbumListFragment;
+            if(mCurrFragment != null) {
+                mCurrFragment.refresh();
+            }
+        }
+        else {
+            mCurrFragment = null;
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        mUpdateProgress = false;
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        mPlayerManager.seekToByPercent(seekBar.getProgress() / (float) seekBar.getMax());
+        mUpdateProgress = true;
+    }
 }

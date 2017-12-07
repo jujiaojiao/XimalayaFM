@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:vpi="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    xmlns:tl="http://schemas.android.com/apk/res-auto">
     <LinearLayout
         android:orientation="horizontal"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="60dp">
         <EditText
+            android:id="@+id/edit_text_main"
             android:layout_margin="50dp"
             android:layout_gravity="center"
             android:background="@drawable/edit_style"
@@ -24,30 +25,33 @@
         android:background="#ffffff">
 
         <RelativeLayout
+            android:padding="10dp"
             android:id="@+id/control_bar"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="150dp"
             android:layout_margin="3dp"
             android:gravity="center" >
 
             <ImageView
                 android:id="@+id/sound_cover"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
                 android:layout_alignParentLeft="true"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_launcher" />
+                android:src="@mipmap/noplay_icon" />
 
             <TextView
+                android:paddingLeft="20dp"
                 android:id="@+id/message"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/sound_cover"
                 android:textColor="@color/textcolor"
                 android:layout_marginLeft="10dp"
-                android:text="no play sound" />
+                android:text="暂无播放内容" />
 
             <SeekBar
+                android:layout_margin="20dp"
                 android:id="@+id/seek_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -58,6 +62,7 @@
                 android:minHeight="10dp" />
 
             <ProgressBar
+                android:layout_margin="20dp"
                 android:id="@+id/buffering_progress"
                 style="?android:attr/progressBarStyleSmall"
                 android:layout_width="wrap_content"
@@ -65,48 +70,71 @@
                 android:layout_centerHorizontal="true"
                 android:visibility="gone" />
 
-            <ImageButton
+            <ImageView
+                android:layout_marginLeft="20dp"
                 android:id="@+id/pre_sound"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_alignLeft="@+id/seek_bar"
                 android:layout_alignParentBottom="true"
                 android:scaleType="fitCenter"
-                android:src="@drawable/pre_icon_transparent_normal" />
+                android:src="@mipmap/pre" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/play_or_pause"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_alignTop="@+id/pre_sound"
                 android:layout_toRightOf="@+id/pre_sound"
                 android:scaleType="fitCenter"
-                android:src="@drawable/widget_play_normal" />
+                android:src="@mipmap/play" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/next_sound"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_alignTop="@+id/pre_sound"
                 android:layout_toRightOf="@+id/play_or_pause"
                 android:scaleType="fitCenter"
-                android:src="@drawable/next_icon_transparent_normal" />
+                android:src="@mipmap/next" />
         </RelativeLayout>
     </RelativeLayout>
-
+    <!--<android.support.design.widget.TabLayout-->
+        <!--android:id="@+id/indicator"-->
+        <!--android:layout_below="@+id/control_layout"-->
+        <!--android:layout_width="match_parent"-->
+        <!--app:tabGravity="center"-->
+        <!--app:tabMode="fixed"-->
+        <!--app:tabIndicatorColor="#ff0000"-->
+        <!--app:tabSelectedTextColor="#ff0000"-->
+        <!--app:tabTextColor="@color/black"-->
+        <!--app:tabTextAppearance="@style/TabTextSize"-->
+        <!--android:layout_height="wrap_content">-->
+    <!--</android.support.design.widget.TabLayout>-->
+    <com.flyco.tablayout.SegmentTabLayout
+        android:layout_marginLeft="200dp"
+        android:layout_below="@+id/control_layout"
+        android:id="@+id/indicator"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        tl:tl_bar_color="#ffffff"
+        tl:tl_textsize="20sp"
+        tl:tl_indicator_anim_enable="true"
+        tl:tl_indicator_color="#d70902"
+        tl:tl_indicator_margin_bottom="2dp"
+        tl:tl_indicator_margin_left="2dp"
+        tl:tl_indicator_margin_right="2dp"
+        tl:tl_indicator_margin_top="2dp"
+        tl:tl_textBold="SELECT"/>
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
+        android:layout_below="@+id/indicator"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/control_layout"
         android:background="#ffffff" >
-        
-        <android.support.v4.view.PagerTabStrip
-            android:id="@+id/indicator"
-            android:layout_width="match_parent"
-        	android:layout_height="wrap_content"
-        	android:layout_gravity="top"
-            />
     </android.support.v4.view.ViewPager>
 
 </RelativeLayout>

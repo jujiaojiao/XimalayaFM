@@ -226,7 +226,9 @@ public class AlbumListFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_albumlist, container, false);
         mListView = (ListView) view.findViewById(R.id.listview_albumlist);
         Bundle bundle = getArguments();
-        albumid = bundle.getLong("id");
+        if (bundle!=null){
+            albumid = bundle.getLong("id");
+        }
         return view;
     }
 
