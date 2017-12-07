@@ -155,6 +155,8 @@ public class RadiosFragment extends BaseFragment {
                 Radio radio = mRadios.get(position);
 //                mPlayerServiceManager.playRadio(radio);
                 mPlayerServiceManager.playLiveRadioForSDK(radio ,-1 , 0);
+                mRadioAdapter.setSelectItem(position);
+                mRadioAdapter.notifyDataSetChanged();
             }
         });
         mListView.setOnItemClickListener(new OnItemClickListener() {
@@ -162,6 +164,8 @@ public class RadiosFragment extends BaseFragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 provinceCode = list.get(i).getProvinceCode();
                 loadRadios();
+                mListAdapter.setSelectItem(i);
+                mListAdapter.notifyDataSetChanged();
             }
         });
         getRadiosCategory();
@@ -234,7 +238,11 @@ public class RadiosFragment extends BaseFragment {
     }
 
     public class ListViewAdapter extends BaseAdapter{
+        private int  selectItem=-1;
 
+        public  void setSelectItem(int selectItem) {
+            this.selectItem = selectItem;
+        }
         @Override
         public int getCount() {
             return list.size();
@@ -252,24 +260,36 @@ public class RadiosFragment extends BaseFragment {
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-            ListViewAdapter.ViewHolder holder;
+            ViewHolder holder;
             if (view == null) {
                 view = LayoutInflater.from(mContext).inflate(R.layout.list_item, viewGroup, false);
-                holder = new ListViewAdapter.ViewHolder();
+                holder = new ViewHolder();
+                holder.content = (ViewGroup) view;
                 holder.textView = (TextView) view.findViewById(R.id.textview);
                 view.setTag(holder);
             } else {
-                holder = (ListViewAdapter.ViewHolder) view.getTag();
+                holder = (ViewHolder) view.getTag();
             }
             holder.textView.setText(list.get(i).getProvinceName());
+            if (i == selectItem) {
+                holder.content.setBackgroundResource(R.color.selected_bg);
+            }
+            else {
+                holder.content.setBackgroundColor(Color.WHITE);
+            }
             return view;
         }
         class ViewHolder {
             TextView textView;
+            ViewGroup content;
         }
     }
     class RadioAdapter extends BaseAdapter {
+        private int  selectItem=-1;
 
+        public  void setSelectItem(int selectItem) {
+            this.selectItem = selectItem;
+        }
         @Override
         public int getCount() {
             return mRadios.size();
@@ -303,10 +323,10 @@ public class RadiosFragment extends BaseFragment {
             holder.title.setText(radio.getRadioName());
             holder.intro.setText(radio.getProgramName());
             x.image().bind(holder.cover, radio.getCoverUrlSmall());
-            PlayableModel curr = mPlayerServiceManager.getCurrSound();
-            if (radio.equals(curr)) {
+            if (position == selectItem) {
                 holder.content.setBackgroundResource(R.color.selected_bg);
-            } else {
+            }
+            else {
                 holder.content.setBackgroundColor(Color.WHITE);
             }
             return convertView;

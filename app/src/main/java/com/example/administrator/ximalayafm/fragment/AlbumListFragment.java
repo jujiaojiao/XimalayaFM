@@ -160,66 +160,6 @@ public class AlbumListFragment extends BaseFragment {
         });
     }
 
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        if (mPlayerManager != null) {
-//            mPlayerManager.removePlayerStatusListener(mPlayerStatusListener);
-//        }
-//    }
-
-//    @Override
-//    protected void onCreate(@Nullable Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//        mListView = ((GridView) findViewById(R.id.list));
-//        initView();
-//    }
-//    private void initView(){
-//        Intent intent = getIntent();
-//        albumid = intent.getLongExtra("albumid", 0);
-//        mXimalaya = CommonRequest.getInstanse();
-//        mPlayerManager = XmPlayerManager.getInstance(mContext);
-//
-//        mPlayerManager.addPlayerStatusListener(mPlayerStatusListener);
-//
-//        mTrackAdapter = new TrackAdapter();
-//        mListView.setAdapter(mTrackAdapter);
-//
-//        mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-//
-//            @Override
-//            public void onScrollStateChanged(AbsListView view, int scrollState) {
-//                if (scrollState == SCROLL_STATE_IDLE) {
-//                    int count = view.getCount();
-//                    count = count - 5 > 0 ? count - 5 : count - 1;
-//                    if (view.getLastVisiblePosition() > count && (mTrackHotList == null || mPageId <= mTrackHotList.getTotalPage())) {
-//                        loadData();
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-//            }
-//        });
-//
-//        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, final long id) {
-//                mPlayerManager.playList(mTrackHotList, position);
-//
-//                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        System.out.println("担待是哪个  ===  " + mPlayerManager.hasNextSound()  + "      " + mPlayerManager.getPlayList().size() + "    ");
-//                    }
-//                } ,2000);
-//            }
-//        });
-//
-//        loadData();
-//    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

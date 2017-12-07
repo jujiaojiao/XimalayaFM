@@ -260,21 +260,16 @@ public class TracksFragment extends BaseFragment {
         listview.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                int id = view.getId();
-                if (id==itemId){
-                    view.setBackgroundColor(Color.GRAY);
-                }else{
-                    view.setBackgroundColor(Color.WHITE);
-                }
                 category_id = categories.get(i).getId();
                 mPageId = 1;
                 loadData();
+                listAdapter.setSelectItem(i);
+                listAdapter.notifyDataSetChanged();
             }
         });
         getCategory();
         loadData();
     }
-    private int itemId = -1;
     @Override
     public void onDestroyView() {
         Log.i(TAG, "onDestroyView");
@@ -284,7 +279,11 @@ public class TracksFragment extends BaseFragment {
         super.onDestroyView();
     }
     public class ListViewAdapter extends BaseAdapter{
+        private int  selectItem=-1;
 
+        public  void setSelectItem(int selectItem) {
+            this.selectItem = selectItem;
+        }
         @Override
         public int getCount() {
             return list.size();
@@ -306,16 +305,24 @@ public class TracksFragment extends BaseFragment {
             if (view == null) {
                 view = LayoutInflater.from(mContext).inflate(R.layout.list_item, viewGroup, false);
                 holder = new ViewHolder();
+                holder.content = (ViewGroup) view;
                 holder.textView = (TextView) view.findViewById(R.id.textview);
                 view.setTag(holder);
             } else {
                 holder = (ViewHolder) view.getTag();
+            }
+            if (i == selectItem) {
+                holder.content.setBackgroundResource(R.color.selected_bg);
+            }
+            else {
+                holder.content.setBackgroundColor(Color.WHITE);
             }
             holder.textView.setText(list.get(i));
           return view;
         }
         class ViewHolder {
             TextView textView;
+            ViewGroup content;
         }
     }
     public class TrackAdapter extends BaseAdapter {
