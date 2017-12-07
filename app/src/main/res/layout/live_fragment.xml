@@ -2,12 +2,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-
+    android:orientation="horizontal" >
     <ListView
-        android:id="@+id/listview"
+        android:id="@+id/listview_radios"
+        android:layout_width="200dp"
+        android:layout_marginRight="20dp"
+        android:layout_height="wrap_content">
+    </ListView>
+    <ListView
+        android:id="@+id/gridview_radios"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
     </ListView>
-
 </LinearLayout>

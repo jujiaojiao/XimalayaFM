@@ -80,7 +80,7 @@ import java.util.Map;
  * @see
  * @since Ver 1.1
  */
-public class MainFragmentActivity extends FragmentActivity implements View.OnKeyListener, ViewPager.OnPageChangeListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
+public class MainFragmentActivity extends FragmentActivity implements View.OnKeyListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
     private static final String[] CONTENT = new String[]{"点播", "直播", "推荐" ,"付费","专辑" };
     private static final String TAG = "MainFragmentActivity";
 
@@ -413,7 +413,6 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
         mContext = MainFragmentActivity.this;
         //findviewByid
         search = ((EditText) findViewById(R.id.edit_text_main));
-//        tabLayout = ((SegmentTabLayout) findViewById(R.id.indicator));
         mTextView = (TextView) findViewById(R.id.message);
         mBtnPreSound = (ImageView) findViewById(R.id.pre_sound);
         mBtnPlay = (ImageView) findViewById(R.id.play_or_pause);
@@ -423,27 +422,18 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
         mProgress = (ProgressBar) findViewById(R.id.buffering_progress);
         mDecorView = getWindow().getDecorView();
         tabLayout = ViewFindUtils.find(mDecorView, R.id.indicator);
-        //创建Tab
-//        mAdapter = new SlidingPagerAdapter(getSupportFragmentManager());
-//        tabLayout.setTabMode(TabLayout.MODE_FIXED);
-//        tabLayout.addTab(tabLayout.newTab().setText(CONTENT[0]));
-//        tabLayout.addTab(tabLayout.newTab().setText(CONTENT[1]));
-//        tabLayout.addTab(tabLayout.newTab().setText(CONTENT[2]));
         mViewPager = (ViewPager) findViewById(R.id.pager);
-//        mViewPager.setAdapter(mAdapter);
-//        tabLayout.setupWithViewPager(mViewPager, true);
+        //创建Tab
         tl_3();
         //各类监听事件
         search.setOnKeyListener(this);
-        mViewPager.setOnPageChangeListener(this);
         mSeekBar.setOnSeekBarChangeListener(this);
         mBtnPreSound.setOnClickListener(this);
         mBtnPlay.setOnClickListener(this);
         mBtnNextSound.setOnClickListener(this);
     }
-
+    //创建Tab
     private void tl_3() {
-//        final ViewPager vp_3 = ViewFindUtils.find(mDecorView, R.id.vp_2);
         mAdapter = new SlidingPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mAdapter);
         tabLayout.setTabData(CONTENT);
@@ -467,6 +457,24 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
             @Override
             public void onPageSelected(int position) {
                 tabLayout.setCurrentTab(position);
+//                if (position == 0) {
+//                    mCurrFragment = mTracksFragment;
+//                } else if (position == 1) {
+//                    mCurrFragment = mRadiosFragment;
+//                } else if (position == 2) {
+//                    mCurrFragment = mScheduleFragment;
+//                    if (mCurrFragment != null) {
+//                        mCurrFragment.refresh();
+//                    }
+//                }  else if(position == 3) {
+//                    mCurrFragment = mAlbumListFragment;
+//                    if(mCurrFragment != null) {
+//                        mCurrFragment.refresh();
+//                    }
+//                }
+//                else {
+//                    mCurrFragment = null;
+//                }
             }
 
             @Override
@@ -530,41 +538,15 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
             //处理事件
             //调取搜索声音接口
             getSearch(search.getText().toString());
+//            mCurrFragment = mScheduleFragment;
+//                if (mCurrFragment != null) {
+//                    mCurrFragment.refresh();
+//                }
+//            mScheduleFragment
+            mViewPager.setCurrentItem(2);
             return true;
         }
         return false;
-    }
-
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-        if (position == 0) {
-            mCurrFragment = mTracksFragment;
-        } else if (position == 1) {
-            mCurrFragment = mRadiosFragment;
-        } else if (position == 2) {
-            mCurrFragment = mScheduleFragment;
-            if (mCurrFragment != null) {
-                mCurrFragment.refresh();
-            }
-        }  else if(position == 3) {
-            mCurrFragment = mAlbumListFragment;
-            if(mCurrFragment != null) {
-                mCurrFragment.refresh();
-            }
-        }
-        else {
-            mCurrFragment = null;
-        }
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
     }
 
     @Override

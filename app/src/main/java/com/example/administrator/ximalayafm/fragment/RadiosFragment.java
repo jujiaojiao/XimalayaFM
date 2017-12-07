@@ -15,12 +15,15 @@ package com.example.administrator.ximalayafm.fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.GridLayout;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -32,7 +35,11 @@ import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
 import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack;
 import com.ximalaya.ting.android.opensdk.model.PlayableModel;
+import com.ximalaya.ting.android.opensdk.model.live.provinces.Province;
+import com.ximalaya.ting.android.opensdk.model.live.provinces.ProvinceList;
 import com.ximalaya.ting.android.opensdk.model.live.radio.Radio;
+import com.ximalaya.ting.android.opensdk.model.live.radio.RadioCategory;
+import com.ximalaya.ting.android.opensdk.model.live.radio.RadioCategoryList;
 import com.ximalaya.ting.android.opensdk.model.live.radio.RadioList;
 import com.ximalaya.ting.android.opensdk.player.XmPlayerManager;
 import com.ximalaya.ting.android.opensdk.player.service.IXmPlayerStatusListener;
@@ -58,12 +65,11 @@ import java.util.Map;
 public class RadiosFragment extends BaseFragment {
     private int mRadioType = 2;
     private RadioAdapter mRadioAdapter;
-    private int mProvinceCode = 360000;
     private List<Radio> mRadios = new ArrayList<Radio>();
     private ListView mListView;
-
+    private List<Province> list = new ArrayList<>();
     private Context mContext;
-
+    private Long provinceCode = 360000l;
     private XmPlayerManager mPlayerServiceManager;
 
     private boolean mLoading = false;
@@ -120,12 +126,15 @@ public class RadiosFragment extends BaseFragment {
         }
 
     };
+    private ListView mGridview;
+    private ListViewAdapter mListAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.live_fragment, container, false);
-        mListView = (ListView) view.findViewById(R.id.listview);
+        mListView = (ListView) view.findViewById(R.id.listview_radios);
+        mGridview = ((ListView) view.findViewById(R.id.gridview_radios));
         return view;
 
     }
@@ -133,17 +142,14 @@ public class RadiosFragment extends BaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         mContext = getActivity();
-
         mPlayerServiceManager = XmPlayerManager.getInstance(mContext);
-
         mPlayerServiceManager.addPlayerStatusListener(mPlayerStatusListener);
-
         mRadioAdapter = new RadioAdapter();
-        mListView.setAdapter(mRadioAdapter);
-
-        mListView.setOnItemClickListener(new OnItemClickListener() {
+        mGridview.setAdapter(mRadioAdapter);
+        mListAdapter = new ListViewAdapter();
+        mListView.setAdapter(mListAdapter);
+        mGridview.setOnItemClickListener(new OnItemClickListener() {
 
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Radio radio = mRadios.get(position);
@@ -151,7 +157,14 @@ public class RadiosFragment extends BaseFragment {
                 mPlayerServiceManager.playLiveRadioForSDK(radio ,-1 , 0);
             }
         });
-
+        mListView.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                provinceCode = list.get(i).getProvinceCode();
+                loadRadios();
+            }
+        });
+        getRadiosCategory();
         loadRadios();
     }
 
@@ -168,6 +181,31 @@ public class RadiosFragment extends BaseFragment {
         loadRadios();
     }
 
+    /**
+     * 获取直播分类
+     */
+    public void getRadiosCategory(){
+        Map<String, String> map = new HashMap<String, String>();
+        CommonRequest.getProvinces(map, new IDataCallBack<ProvinceList>() {
+            @Override
+            public void onSuccess(@Nullable ProvinceList provinceList) {
+                List<Province> provinces = provinceList.getProvinceList();
+                if (provinces.size()>0){
+                    list.addAll(provinces);
+                    mListAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onError(int i, String s) {
+
+            }
+        });
+    }
+
+    /**
+     * 加载直播数据
+     */
     public void loadRadios() {
         if (mLoading) {
             return;
@@ -175,7 +213,7 @@ public class RadiosFragment extends BaseFragment {
         mLoading = true;
         Map<String, String> map = new HashMap<String, String>();
         map.put(DTransferConstants.RADIOTYPE, "" + mRadioType);
-        map.put(DTransferConstants.PROVINCECODE, "" + mProvinceCode);
+        map.put(DTransferConstants.PROVINCECODE, "" + provinceCode);
         CommonRequest.getRadios(map, new IDataCallBack<RadioList>() {
 
             @Override
@@ -195,6 +233,41 @@ public class RadiosFragment extends BaseFragment {
         });
     }
 
+    public class ListViewAdapter extends BaseAdapter{
+
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return list.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            ListViewAdapter.ViewHolder holder;
+            if (view == null) {
+                view = LayoutInflater.from(mContext).inflate(R.layout.list_item, viewGroup, false);
+                holder = new ListViewAdapter.ViewHolder();
+                holder.textView = (TextView) view.findViewById(R.id.textview);
+                view.setTag(holder);
+            } else {
+                holder = (ListViewAdapter.ViewHolder) view.getTag();
+            }
+            holder.textView.setText(list.get(i).getProvinceName());
+            return view;
+        }
+        class ViewHolder {
+            TextView textView;
+        }
+    }
     class RadioAdapter extends BaseAdapter {
 
         @Override
@@ -216,7 +289,7 @@ public class RadiosFragment extends BaseFragment {
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder holder;
             if (convertView == null) {
-                convertView = LayoutInflater.from(mContext).inflate(R.layout.track_content, parent, false);
+                convertView = LayoutInflater.from(mContext).inflate(R.layout.album_item, parent, false);
                 holder = new ViewHolder();
                 holder.content = (ViewGroup) convertView;
                 holder.title = (TextView) convertView.findViewById(R.id.trackname);

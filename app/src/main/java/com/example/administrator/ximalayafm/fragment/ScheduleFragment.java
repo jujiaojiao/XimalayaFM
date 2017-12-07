@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -122,7 +123,7 @@ public class ScheduleFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.live_fragment, container, false);
-        mListView = (ListView) view.findViewById(R.id.listview);
+        mListView = (ListView) view.findViewById(R.id.listview_radios);
         return view;
     }
 
