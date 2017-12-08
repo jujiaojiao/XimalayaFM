@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -67,9 +68,13 @@ import com.ximalaya.ting.android.sdkdownloader.XmDownloadManager;
 
 import org.xutils.x;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import de.greenrobot.event.EventBus;
 
 
 /**
@@ -81,7 +86,7 @@ import java.util.Map;
  * @since Ver 1.1
  */
 public class MainFragmentActivity extends FragmentActivity implements View.OnKeyListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
-    private static final String[] CONTENT = new String[]{"点播", "直播", "推荐" ,"付费","专辑" };
+    private static final String[] CONTENT = new String[]{"点播", "直播", "推荐" ,"搜索","专辑" };
     private static final String TAG = "MainFragmentActivity";
 
     private TextView mTextView;
@@ -111,11 +116,11 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
     private EditText search;
     private SegmentTabLayout tabLayout;
     private View mDecorView;
+    public  static String text;
 
     @Override
     protected void onCreate(Bundle arg0) {
         super.onCreate(arg0);
-
         initView();
         // 是否使用防劫持方案
 //        XmPlayerConfig.getInstance(this).usePreventHijack(false);
@@ -335,28 +340,6 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
         }
     };
 
-    /**
-     * 搜索接口
-     * @param searchText 要查询的字符串
-     */
-    private void getSearch(String searchText){
-        Map<String, String> map = new HashMap<String, String>();
-        map.put(DTransferConstants.SEARCH_KEY, searchText);
-        CommonRequest.getSearchedTracks(map, new IDataCallBack<SearchTrackList>(){
-            @Override
-            public void onSuccess(@Nullable SearchTrackList searchTrackList) {
-                List<Track> tracks = searchTrackList.getTracks();
-                for (Track track : tracks) {
-                    Log.e(TAG, "onSuccess:search::::::: "+track.getAnnouncer());
-                }
-            }
-
-            @Override
-            public void onError(int i, String s) {
-
-            }
-        });
-    }
 
     class SlidingPagerAdapter extends FragmentPagerAdapter {
         public SlidingPagerAdapter(FragmentManager fm) {
@@ -376,7 +359,7 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
                     mRadiosFragment = new RadiosFragment();
                 }
                 f = mRadiosFragment;
-            } else if (2 == position) {
+            } else if (3 == position) {
                 if (mScheduleFragment == null) {
                     mScheduleFragment = new ScheduleFragment();
                 }
@@ -388,7 +371,7 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
                 }
                 f = mAlbumListFragment;
             }
-            else if(3 == position) {
+            else if(2 == position) {
                 if(mPayTrackFragment == null) {
                     mPayTrackFragment = new PayTrackFragment();//付费
                 }
@@ -431,6 +414,7 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
         mBtnPreSound.setOnClickListener(this);
         mBtnPlay.setOnClickListener(this);
         mBtnNextSound.setOnClickListener(this);
+        text = search.getText().toString();
     }
     //创建Tab
     private void tl_3() {
@@ -457,24 +441,6 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
             @Override
             public void onPageSelected(int position) {
                 tabLayout.setCurrentTab(position);
-//                if (position == 0) {
-//                    mCurrFragment = mTracksFragment;
-//                } else if (position == 1) {
-//                    mCurrFragment = mRadiosFragment;
-//                } else if (position == 2) {
-//                    mCurrFragment = mScheduleFragment;
-//                    if (mCurrFragment != null) {
-//                        mCurrFragment.refresh();
-//                    }
-//                }  else if(position == 3) {
-//                    mCurrFragment = mAlbumListFragment;
-//                    if(mCurrFragment != null) {
-//                        mCurrFragment.refresh();
-//                    }
-//                }
-//                else {
-//                    mCurrFragment = null;
-//                }
             }
 
             @Override
@@ -530,7 +496,28 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
         }
         return super.onOptionsItemSelected(item);
     }
+    /**
+     * 搜索接口
+     * @param searchText 要查询的字符串
+     */
+    public void getSearch(String searchText){
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(DTransferConstants.SEARCH_KEY, searchText);
+        CommonRequest.getSearchedTracks(map, new IDataCallBack<SearchTrackList>(){
+            @Override
+            public void onSuccess(@Nullable SearchTrackList searchTrackList) {
+                List<Track> tracks = searchTrackList.getTracks();
+                for (Track track : tracks) {
+                    Log.e(TAG, "onSuccess:search::::::: "+track.getAnnouncer());
+                }
+                EventBus.getDefault().post(tracks);
+            }
+            @Override
+            public void onError(int i, String s) {
 
+            }
+        });
+    }
     @Override
     public boolean onKey(View view, int i, KeyEvent keyEvent) {
         //这里注意要作判断处理，ActionDown、ActionUp都会回调到这里，不作处理的话就会调用两次
@@ -538,12 +525,12 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
             //处理事件
             //调取搜索声音接口
             getSearch(search.getText().toString());
-//            mCurrFragment = mScheduleFragment;
-//                if (mCurrFragment != null) {
-//                    mCurrFragment.refresh();
-//                }
+            mCurrFragment = mScheduleFragment;
+                if (mCurrFragment != null) {
+                    mCurrFragment.refresh();
+                }
 //            mScheduleFragment
-            mViewPager.setCurrentItem(2);
+            mViewPager.setCurrentItem(3);
             return true;
         }
         return false;

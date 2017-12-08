@@ -4,6 +4,7 @@ import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Intent;
 
+import com.example.administrator.ximalayafm.dao.DBUtil;
 import com.example.administrator.ximalayafm.reciver.MyPlayerReceiver;
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
@@ -22,6 +23,8 @@ import org.xutils.x;
  * Created by le.xin on 2016/6/12.
  */
 public class TingApplication extends Application {
+
+    private DBUtil instance;
 
     @Override
     public void onCreate() {
@@ -76,6 +79,7 @@ public class TingApplication extends Application {
             PendingIntent broadcast = PendingIntent.getBroadcast(this, 0, intent, 0);
             instanse.setClosePendingIntent(broadcast);
         }
+//        instance = DBUtil.getInstance(this);
     }
 
     private RequestTracker requestTracker = new RequestTracker() {

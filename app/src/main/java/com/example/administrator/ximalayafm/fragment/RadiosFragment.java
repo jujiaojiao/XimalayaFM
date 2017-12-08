@@ -75,7 +75,6 @@ public class RadiosFragment extends BaseFragment {
     private boolean mLoading = false;
 
     private IXmPlayerStatusListener mPlayerStatusListener = new IXmPlayerStatusListener() {
-
         @Override
         public void onSoundSwitch(PlayableModel laModel, PlayableModel curModel) {
             if (mRadioAdapter != null) {
@@ -286,7 +285,6 @@ public class RadiosFragment extends BaseFragment {
     }
     class RadioAdapter extends BaseAdapter {
         private int  selectItem=-1;
-
         public  void setSelectItem(int selectItem) {
             this.selectItem = selectItem;
         }
