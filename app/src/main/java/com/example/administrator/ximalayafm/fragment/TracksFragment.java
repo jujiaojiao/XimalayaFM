@@ -142,6 +142,7 @@ public class TracksFragment extends BaseFragment {
                 if (categories.size()>0){
                     for (Category category : categories) {
                         list.add(category.getCategoryName());
+                        Log.e(TAG, "onSuccess:专辑名称 "+category.getCategoryName()+"======专辑id======="+category.getId());
                     }
                     listAdapter.notifyDataSetChanged();
                 }

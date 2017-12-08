@@ -73,16 +73,8 @@ public class ScheduleFragment extends BaseFragment {
     private static final String TAG = "ScheduleFragment";
     private Context mContext;
     private GridView mListView;
-
     private XmPlayerManager mPlayerManager;
-
     private ScheduleAdapter mAdapter;
-    private ScheduleList mScheduleList;
-
-    private boolean mLoading = false;
-
-    private Radio mRadio;
-
     private IXmPlayerStatusListener mPlayerStatusListener = new IXmPlayerStatusListener() {
 
         @Override
@@ -159,16 +151,8 @@ public class ScheduleFragment extends BaseFragment {
         mListView.setAdapter(mAdapter);
 
         mListView.setOnItemClickListener(new OnItemClickListener() {
-
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                if (mScheduleList != null && mScheduleList.getmScheduleList() != null) {
-//                    Schedule sc = mScheduleList.getmScheduleList().get(position);
-//                    String time = sc.getStartTime() + "-" + sc.getEndTime();
-//                    if (ToolUtil.isInTime(time) < 0) {
-//                        mPlayerManager.playSchedule(mScheduleList.getmScheduleList(), position);
-//                    }
-//                }
                 mPlayerManager.playList(listDatas, position);
 
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
@@ -190,50 +174,11 @@ public class ScheduleFragment extends BaseFragment {
 //        event.getAlbum()
         Log.e(TAG, "onEvent: "+event.size());
         listDatas = event;
+        Track track = event.get(1);
+        Log.e(TAG, "onEvent: 声音名称: " +track.getTrackTitle()+"\n声音简介: "+track.getTrackIntro()
+        +"\n声音标签列表:"+track.getTrackTags()+"\n播放数："+track.getPlayCount()+"\n下载次数："+track.getDownloadCount()
+        +"\n专辑ID: "+track.getCategoryId()+"\n是否付费："+track.isPaid());
         mAdapter.notifyDataSetChanged();
-    }
-    private void loadData() {
-        if (mLoading) {
-            return;
-        }
-        mLoading = true;
-        PlayableModel model = mPlayerManager.getCurrSound();
-        if (model == null || !(model instanceof Radio)) {
-            Log.e(TAG, "loadData return class cast exception");
-            mLoading = false;
-            return;
-        }
-        Log.e(TAG, "loadData");
-        mRadio = (Radio) model;
-        Map<String, String> param = new HashMap<String, String>();
-        param.put(DTransferConstants.RADIOID, "" + mRadio.getDataId());
-        CommonRequest.getSchedules(param, new IDataCallBack<ScheduleList>() {
-
-            @Override
-            public void onSuccess(ScheduleList object) {
-                if (object != null) {
-                    if (mScheduleList == null) {
-                        mScheduleList = object;
-                    } else {
-                        mScheduleList.getmScheduleList().clear();
-                        mScheduleList.getmScheduleList().addAll(object.getmScheduleList());
-                    }
-                    mAdapter.notifyDataSetChanged();
-                }
-                mLoading = false;
-            }
-
-            @Override
-            public void onError(int code, String message) {
-                mLoading = false;
-            }
-        });
-
-    }
-
-    @Override
-    public void refresh() {
-        loadData();
     }
 
     @Override
@@ -292,61 +237,4 @@ public class ScheduleFragment extends BaseFragment {
         }
 
     }
-//    private class ScheduleAdapter extends BaseAdapter {
-//
-//        @Override
-//        public int getCount() {
-//            if (mScheduleList == null || mScheduleList.getmScheduleList() == null) {
-//                return 0;
-//            }
-//            return mScheduleList.getmScheduleList().size();
-//        }
-//
-//        @Override
-//        public Object getItem(int position) {
-//            return mScheduleList.getmScheduleList().get(position);
-//        }
-//
-//        @Override
-//        public long getItemId(int position) {
-//            return position;
-//        }
-//
-//        @Override
-//        public View getView(int position, View convertView, ViewGroup parent) {
-//            ViewHolder holder;
-//            if (convertView == null) {
-//                convertView = LayoutInflater.from(mContext).inflate(R.layout.item_schedule, parent, false);
-//                holder = new ViewHolder();
-//                holder.content = (ViewGroup) convertView;
-//                holder.title = (TextView) convertView.findViewById(R.id.trackname);
-//                holder.intro = (TextView) convertView.findViewById(R.id.intro);
-//                holder.cover = (ImageView) convertView.findViewById(R.id.imageview);
-//                holder.status = (TextView) convertView.findViewById(R.id.status);
-//                convertView.setTag(holder);
-//            } else {
-//                holder = (ViewHolder) convertView.getTag();
-//            }
-//            Schedule schedule = mScheduleList.getmScheduleList().get(position);
-//            holder.title.setText(ToolUtil.isEmpty(schedule.getRelatedProgram().getProgramName()) ? "无节目" : schedule.getRelatedProgram().getProgramName());
-//            String time = schedule.getStartTime() + "-" + schedule.getEndTime();
-//            holder.intro.setText(time);
-//
-//            int ret = ToolUtil.isInTime(time);
-//            if (ret > 0) {
-//                holder.content.setBackgroundColor(Color.WHITE);
-//                holder.status.setText("WAIT");
-//                holder.status.setBackgroundColor(Color.TRANSPARENT);
-//            } else if (ret == 0) {
-//                holder.content.setBackgroundResource(R.color.selected_bg);
-//                holder.status.setText("LIVE");
-//                holder.status.setBackgroundColor(Color.RED);
-//            } else {
-//                holder.content.setBackgroundColor(Color.WHITE);
-//                holder.status.setText("");
-//            }
-//            return convertView;
-//        }
-//
-//    }
 }
