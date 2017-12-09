@@ -2,6 +2,7 @@ package com.example.administrator.ximalayafm;
 
 import android.app.Application;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 
 import com.example.administrator.ximalayafm.dao.DBUtil;
@@ -24,7 +25,7 @@ import org.xutils.x;
  */
 public class TingApplication extends Application {
 
-    private DBUtil instance;
+    private static DBUtil instance;
 
     @Override
     public void onCreate() {
@@ -79,9 +80,14 @@ public class TingApplication extends Application {
             PendingIntent broadcast = PendingIntent.getBroadcast(this, 0, intent, 0);
             instanse.setClosePendingIntent(broadcast);
         }
-//        instance = DBUtil.getInstance(this);
+        instance = DBUtil.getInstance(this);
     }
-
+    public static DBUtil getDbUtilInstance(Context context) {
+        if (instance == null) {
+            instance = DBUtil.getInstance(context);
+        }
+        return instance;
+    }
     private RequestTracker requestTracker = new RequestTracker() {
         @Override
         public void onWaiting(RequestParams params) {

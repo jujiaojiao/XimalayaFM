@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBHelper extends SQLiteOpenHelper {
     public static final String NAME = "XIMALAYA.db";
     public static final int VSERDION = 1;
-    private String CREATE_XIMALAYAFM_TABLE = "create table if not exists  ximalayaFM( id LONG PRIMARY KEY ,track_title TEXT ,track_tags TEXT,track_intro TEXT,cover_url_small TEXT,cover_url_middle TEXT,cover_url_large,announcer TEXT,duration INTERGER,song_path TEXT)";
+    private String CREATE_XIMALAYAFM_TABLE = "create table if not exists  ximalayaFM( id LONG PRIMARY KEY ,track_title TEXT ,track_tags TEXT,track_intro TEXT,play_count INTERGER,download_count INTERGER,category_id INTERGER,is_paid BOOLEAN)";
     public DBHelper(Context context){
         super(context, NAME, null, VSERDION);
     }

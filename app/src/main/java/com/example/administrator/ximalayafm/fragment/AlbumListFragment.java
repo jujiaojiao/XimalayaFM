@@ -1,6 +1,7 @@
 package com.example.administrator.ximalayafm.fragment;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -21,6 +22,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.administrator.ximalayafm.R;
+import com.example.administrator.ximalayafm.TingApplication;
+import com.example.administrator.ximalayafm.dao.DBUtil;
 import com.example.administrator.ximalayafm.data.ViewHolder;
 import com.example.administrator.ximalayafm.fragment.base.BaseFragment;
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
@@ -208,7 +211,15 @@ public class AlbumListFragment extends BaseFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, final long id) {
                 mPlayerManager.playList(mTrackHotList, position);
-
+                ContentValues values = new ContentValues();
+                values.put("track_title",mTrackHotList.getTracks().get(position).getTrackTitle());
+                values.put("track_intro",mTrackHotList.getTracks().get(position).getTrackIntro());
+                values.put("track_tags",mTrackHotList.getTracks().get(position).getTrackTags());
+                values.put("download_count",mTrackHotList.getTracks().get(position).getDownloadCount());
+                values.put("category_id",mTrackHotList.getTracks().get(position).getCategoryId());
+                long result = DBUtil.getInstance(getActivity().getApplicationContext()).insertData(values,"ximalayaFM");
+                Log.e("PayTrackFragment", "onItemClick: 数据添加成功 = " + result );
+                Log.e(TAG, "onItemClick: "+"renzaisfaljf " );
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
