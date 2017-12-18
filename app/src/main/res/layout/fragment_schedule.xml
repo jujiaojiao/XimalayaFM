@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/nodata_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:text="暂无数据,请尽情搜索您喜欢的内容"
+        android:gravity="center"
+        android:layout_centerInParent="true"
+        android:textSize="30sp">
+    </TextView>
     <GridView
         android:layout_marginLeft="50dp"
         android:id="@+id/gridview_schedule"
@@ -10,4 +19,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     </GridView>
-</LinearLayout>
+</RelativeLayout>

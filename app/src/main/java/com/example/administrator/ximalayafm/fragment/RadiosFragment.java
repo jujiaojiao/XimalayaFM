@@ -12,6 +12,7 @@
 
 package com.example.administrator.ximalayafm.fragment;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.administrator.ximalayafm.R;
+import com.example.administrator.ximalayafm.dao.DBUtil;
 import com.example.administrator.ximalayafm.data.ViewHolder;
 import com.example.administrator.ximalayafm.fragment.base.BaseFragment;
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
@@ -61,6 +63,9 @@ import java.util.Map;
  * @Date 2015-5-25		下午8:17:47
  * @see
  * @since Ver 1.1
+ *
+ * 地方电台直播界面
+ *
  */
 public class RadiosFragment extends BaseFragment {
     private int mRadioType = 2;

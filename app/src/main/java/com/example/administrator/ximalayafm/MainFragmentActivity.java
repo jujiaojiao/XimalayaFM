@@ -25,6 +25,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -52,6 +54,7 @@ import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack;
 import com.ximalaya.ting.android.opensdk.model.PlayableModel;
 import com.ximalaya.ting.android.opensdk.model.advertis.Advertis;
 import com.ximalaya.ting.android.opensdk.model.advertis.AdvertisList;
+import com.ximalaya.ting.android.opensdk.model.category.Category;
 import com.ximalaya.ting.android.opensdk.model.category.CategoryList;
 import com.ximalaya.ting.android.opensdk.model.live.radio.Radio;
 import com.ximalaya.ting.android.opensdk.model.live.schedule.Schedule;
@@ -86,7 +89,7 @@ import de.greenrobot.event.EventBus;
  * @since Ver 1.1
  */
 public class MainFragmentActivity extends FragmentActivity implements View.OnKeyListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
-    private static final String[] CONTENT = new String[]{"点播", "直播", "推荐" ,"搜索","专辑" };
+    private static final String[] CONTENT = new String[]{"点播", "直播", "推荐" ,"搜索" };
     private static final String TAG = "MainFragmentActivity";
 
     private TextView mTextView;
@@ -117,16 +120,28 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
     private SegmentTabLayout tabLayout;
     private View mDecorView;
     public  static String text;
+    private Button search_button;
 
     @Override
     protected void onCreate(Bundle arg0) {
         super.onCreate(arg0);
         initView();
+        String type = getIntent().getStringExtra("type");
+        Log.e(TAG, "1111111111111111111: "+type);
+        if (type!=null){
+            boolean result = type.matches("[a-zA-Z]+");//判断该字符串是否全为英文
+            if (result){
+                 initCategoryId(type);
+            }else {
+                getSearch(type);
+                mViewPager.setCurrentItem(3);
+            }
+        }
+        Log.e(TAG, "onCreate:type的值" +type);
         // 是否使用防劫持方案
 //        XmPlayerConfig.getInstance(this).usePreventHijack(false);
         mPlayerManager = XmPlayerManager.getInstance(mContext);
         Notification mNotification = XmNotificationCreater.getInstanse(this).initNotification(this.getApplicationContext(), MainFragmentActivity.class);
-
         // 如果之前贵方使用了 `XmPlayerManager.init(int id, Notification notification)` 这个初始化的方式
         // 请参考`4.8 播放器通知栏使用`重新添加新的通知栏布局,否则直接升级可能导致在部分手机播放时崩溃
         // 如果不想使用sdk内部搞好的notification,或者想自建notification 可以使用下面的  init()函数进行初始化
@@ -138,7 +153,6 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
             @Override
             public void onConnected() {
                 mPlayerManager.removeOnConnectedListerner(this);
-
                 mPlayerManager.setPlayMode(XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP);
                 Toast.makeText(MainFragmentActivity.this, "播放器初始化成功", Toast.LENGTH_SHORT).show();
             }
@@ -148,19 +162,6 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
         XmPlayerManager.getInstance(this).setCommonBusinessHandle(XmDownloadManager.getInstance());
 
         Toast.makeText(MainFragmentActivity.this, "" + AccessTokenManager.getInstanse().getUid(), Toast.LENGTH_SHORT).show();
-
-        Map<String, String> map = new HashMap<String, String>();
-        CommonRequest.getCategories(map, new IDataCallBack<CategoryList>() {
-            @Override
-            public void onSuccess(CategoryList object) {
-                System.out.println("object = [" + object + "]");
-            }
-
-            @Override
-            public void onError(int code, String message) {
-                System.out.println("code = [" + code + "], message = [" + message + "]");
-            }
-        });
 
     }
 
@@ -340,7 +341,6 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
         }
     };
 
-
     class SlidingPagerAdapter extends FragmentPagerAdapter {
         public SlidingPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -348,10 +348,16 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
 
         @Override
         public Fragment getItem(int position) {
+            Log.i("ysan", "position = " + id);
             Fragment f = null;
             if (0 == position) {
                 if (mTracksFragment == null) {
                     mTracksFragment = new TracksFragment();
+                    if (id!=0){
+                        Bundle bundle = new Bundle();
+                        bundle.putLong("DATA",id);//这里的values就是我们要传的值
+                        mTracksFragment.setArguments(bundle);
+                    }
                 }
                 f = mTracksFragment;
             } else if (1 == position) {
@@ -391,10 +397,54 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+    private  Long id =0l;
+    private void initCategoryId(String type){
+        Log.e(TAG, "initCategoryID:type的值" +type);
+        if (type!=null&&type!=""){
+            switch (type) {
+                case "storytelling"://有声书
+                    id = 3l;
+                    break;
+                case "comic"://评书
+                    id = 12l;
+                    break;
+                case "animeGame"://动漫
+                    id = 24l;
+                    break;
+                case "finance"://财经
+                    id = 8l;
+                    break;
+                case "historyHumanism"://历史
+                    id = 9l;
+                    break;
+            }
+            Log.e(TAG, "initCategoryId: "+id );
+        }
+    }
+    private void getCategory(){
+        Map<String, String> map = new HashMap<String, String>();
+        CommonRequest.getCategories(map, new IDataCallBack<CategoryList>() {
+            @Override
+            public void onSuccess(CategoryList object) {
+                List<Category> categories = object.getCategories();
+                for (Category category : categories) {
+                    Log.e(TAG, "onSuccess: "+category.getCategoryName()+"-----------"+category.getId() );
+                }
+            }
+            @Override
+            public void onError(int code, String message) {
+            }
+        });
+    }
     private void initView() {
         setContentView(R.layout.act_main);
         mContext = MainFragmentActivity.this;
         //findviewByid
+        search_button = ((Button) findViewById(R.id.search_main));
         search = ((EditText) findViewById(R.id.edit_text_main));
         mTextView = (TextView) findViewById(R.id.message);
         mBtnPreSound = (ImageView) findViewById(R.id.pre_sound);
@@ -409,12 +459,18 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
         //创建Tab
         tl_3();
         //各类监听事件
+        search_button.setOnClickListener(this);
         search.setOnKeyListener(this);
+        search.clearFocus();
+        search.setFocusable(true);
+        InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(search.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         mSeekBar.setOnSeekBarChangeListener(this);
         mBtnPreSound.setOnClickListener(this);
         mBtnPlay.setOnClickListener(this);
         mBtnNextSound.setOnClickListener(this);
         text = search.getText().toString();
+        getCategory();
     }
     //创建Tab
     private void tl_3() {
@@ -437,7 +493,6 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
             }
-
             @Override
             public void onPageSelected(int position) {
                 tabLayout.setCurrentTab(position);
@@ -467,10 +522,16 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
             case R.id.next_sound:
                 mPlayerManager.playNext();
                 break;
+            case R.id.search_main:
+                getSearch(search.getText().toString());
+                mCurrFragment = mScheduleFragment;
+                if (mCurrFragment != null) {
+                    mCurrFragment.refresh();
+                }
+                mViewPager.setCurrentItem(3);
+                break;
         }
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -508,9 +569,11 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
             public void onSuccess(@Nullable SearchTrackList searchTrackList) {
                 List<Track> tracks = searchTrackList.getTracks();
                 for (Track track : tracks) {
-                    Log.e(TAG, "onSuccess:search::::::: "+track.getAnnouncer());
+                    Log.e(TAG, "1111111111111111111:search::::::: "+track.getAnnouncer());
                 }
                 EventBus.getDefault().post(tracks);
+                InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.hideSoftInputFromWindow(search.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             }
             @Override
             public void onError(int i, String s) {
@@ -529,7 +592,6 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
                 if (mCurrFragment != null) {
                     mCurrFragment.refresh();
                 }
-//            mScheduleFragment
             mViewPager.setCurrentItem(3);
             return true;
         }

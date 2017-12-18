@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -68,6 +69,9 @@ import de.greenrobot.event.Subscribe;
  * @Date 2015-6-4 上午10:41:12
  * @see
  * @since Ver 1.1
+ *
+ * 搜索界面
+ *
  */
 public class ScheduleFragment extends BaseFragment {
     private static final String TAG = "ScheduleFragment";
@@ -128,11 +132,13 @@ public class ScheduleFragment extends BaseFragment {
 
     };
     private List<Track> listDatas;
+    private TextView viewById;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
         mListView = (GridView) view.findViewById(R.id.gridview_schedule);
+        viewById = ((TextView) view.findViewById(R.id.nodata_edittext));
         EventBus.getDefault().register(this);
         return view;
     }
@@ -172,6 +178,7 @@ public class ScheduleFragment extends BaseFragment {
     @Subscribe
     public void onEvent(List<Track> event) {
 //        event.getAlbum()
+        viewById.setVisibility(View.GONE);
         Log.e(TAG, "onEvent: "+event.size());
         listDatas = event;
         Track track = event.get(1);

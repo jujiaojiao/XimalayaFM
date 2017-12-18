@@ -56,6 +56,10 @@ import java.util.Random;
  *  1、查询数据库
  *  2、使用分类id获取分类列表数据
  *  3、播放分类列表
+ *
+ *
+ *  推荐界面
+ *
  */
 
 public class PayTrackFragment extends BaseFragment  {
@@ -70,6 +74,7 @@ public class PayTrackFragment extends BaseFragment  {
     private List<String> category_ids = new ArrayList<>();
     private String preID = "0" ;
     private XmPlayerManager xmPlayerManager;
+    private TextView nodata;
 
 
     @Override
@@ -77,6 +82,8 @@ public class PayTrackFragment extends BaseFragment  {
         super.onCreate(savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
         mListView = (GridView) view.findViewById(R.id.gridview_schedule);
+        nodata = ((TextView) view.findViewById(R.id.nodata_edittext));
+        nodata.setVisibility(View.GONE);
         queryDButil();
         return view;
     }

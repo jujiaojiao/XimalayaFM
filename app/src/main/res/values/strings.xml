@@ -6,6 +6,8 @@
     <string name="remove">移除</string>
     <string name="stop">停止</string>
     <string name="start">开始下载</string>
+    <string name="loading">加载中。。。</string>
+
 
     <!-- Button -->
     <string name="btn_browser_text">OAuth2授权(WEB方式)</string>

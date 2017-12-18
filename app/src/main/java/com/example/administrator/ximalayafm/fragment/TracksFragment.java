@@ -20,9 +20,12 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.administrator.ximalayafm.R;
 import com.example.administrator.ximalayafm.data.ViewHolder;
+import com.example.administrator.ximalayafm.dialog.ProgressDialogFragment;
+import com.example.administrator.ximalayafm.entry.TitleBean;
 import com.example.administrator.ximalayafm.fragment.base.BaseFragment;
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
@@ -47,6 +50,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.security.auth.login.LoginException;
+
+/**
+ * 点播界面
+ */
+
 public class TracksFragment extends BaseFragment {
     private static final String TAG = "TracksFragment";
     private Context mContext;
@@ -55,7 +64,7 @@ public class TracksFragment extends BaseFragment {
     private ListViewAdapter listAdapter;
     private ListView listview;
     private long albumId;
-    private List<String> list =  new ArrayList<>();
+    private List<String> titleBeans =  new ArrayList<>();
     private int mPageId = 1;
     private TrackHotList mTrackHotList = null;
     private TrackList mTrackList = null;
@@ -133,6 +142,7 @@ public class TracksFragment extends BaseFragment {
     }
     private Long category_id = 1l;
     private List<Category> categories;
+    private HashMap<Long,String> hashMap = new HashMap<>();
     private void getCategory(){
         Map<String, String> map = new HashMap<String, String>();
         CommonRequest.getCategories(map, new IDataCallBack<CategoryList>() {
@@ -141,10 +151,11 @@ public class TracksFragment extends BaseFragment {
                 categories = object.getCategories();
                 if (categories.size()>0){
                     for (Category category : categories) {
-                        list.add(category.getCategoryName());
-                        Log.e(TAG, "onSuccess:专辑名称 "+category.getCategoryName()+"======专辑id======="+category.getId());
+                        TitleBean titleBean = new TitleBean(category.getCategoryName(),category.getId(),false);
+                        hashMap.put(category.getId(),category.getCategoryName());
+                        titleBeans.add(category.getCategoryName());
                     }
-                    listAdapter.notifyDataSetChanged();
+                    setListViewSelect();
                 }
             }
             @Override
@@ -152,11 +163,18 @@ public class TracksFragment extends BaseFragment {
             }
         });
     }
+    //语音打开界面时设置listview的选中状态
+    private void setListViewSelect(){
+        String s = hashMap.get(category_id);
+        int i = titleBeans.indexOf(s);
+        listAdapter.setSelectItem(i);
+    }
     private void loadData() {
         if (mLoading) {
             return;
         }
-//        mPageId=1;
+        final ProgressDialogFragment progressDialogFragment = new ProgressDialogFragment();
+        progressDialogFragment.show(getActivity(),R.string.loading);
         mLoading = true;
         Map<String, String> param = new HashMap<String, String>();
         param.put(DTransferConstants.CATEGORY_ID, "" + category_id);
@@ -165,6 +183,7 @@ public class TracksFragment extends BaseFragment {
         CommonRequest.getHotTracks(param, new IDataCallBack<TrackHotList>() {
             @Override
             public void onSuccess(TrackHotList object) {
+                progressDialogFragment.dismiss(getActivity());
                 Log.e("pageid", "onSuccess: "+mPageId);
                 if (object != null && object.getTracks() != null && object.getTracks().size() != 0) {
                     mPageId++;
@@ -175,21 +194,16 @@ public class TracksFragment extends BaseFragment {
                         df=null;
                     }
                     mTrackAdapter.notifyDataSetChanged();
+                }else{
+                    Toast.makeText(mContext, "该页面暂无数据", Toast.LENGTH_SHORT).show();
                 }
-                List<Track> list = mTrackHotList.getTracks();
-                List li = new ArrayList();
-                for (int i = 0; i < list.size(); i++) {
-//                    li.add(list.get(i).getPlayUrl64M4a());
-                    Track sound = list.get(i);
-                    li.add( sound.getAnnouncer() == null ? sound.getTrackTags() : sound.getAnnouncer().getNickname());
-                }
-
-                System.out.println(li);
                 mLoading = false;
             }
 
             @Override
             public void onError(int code, String message) {
+                progressDialogFragment.dismiss(getActivity());
+                Toast.makeText(mContext, "该页面暂无数据", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "onError " + code + ", " + message);
                 mLoading = false;
             }
@@ -202,27 +216,29 @@ public class TracksFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.activity_main, container, false);
         mListView = (GridView) view.findViewById(R.id.list);
         listview =(ListView) view.findViewById(R.id.listview);
+        Bundle arguments = getArguments();
+        Log.e(TAG, "onCreateView: "+(arguments!=null) );
+        if (arguments!=null){
+            long data = arguments.getLong("DATA");
+            Log.e(TAG, "onCreateView:setCategory_id::: "+data );
+
+            category_id = data;
+        }
         return view;
     }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.i(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
-
         mContext = getActivity();
-
         mXimalaya = CommonRequest.getInstanse();
         mPlayerManager = XmPlayerManager.getInstance(mContext);
-
         mPlayerManager.addPlayerStatusListener(mPlayerStatusListener);
-
         mTrackAdapter = new TrackAdapter();
         listAdapter = new ListViewAdapter();
         mListView.setAdapter(mTrackAdapter);
         listview.setAdapter(listAdapter);
         mListView.setOnScrollListener(new OnScrollListener() {
-
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 if (scrollState == SCROLL_STATE_IDLE) {
@@ -240,8 +256,6 @@ public class TracksFragment extends BaseFragment {
         });
 
         mListView.setOnItemClickListener(new OnItemClickListener() {
-
-
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //                mPlayerManager.playList(mTrackHotList, position);
@@ -260,16 +274,17 @@ public class TracksFragment extends BaseFragment {
         });
         listview.setOnItemClickListener(new OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(AdapterView<?> adapterView, View arg1, int i, long l) {
                 category_id = categories.get(i).getId();
+                Log.e(TAG, "onItemClick: "+category_id );
                 mPageId = 1;
                 loadData();
                 listAdapter.setSelectItem(i);
-                listAdapter.notifyDataSetChanged();
             }
         });
         getCategory();
         loadData();
+
     }
     @Override
     public void onDestroyView() {
@@ -284,15 +299,16 @@ public class TracksFragment extends BaseFragment {
 
         public  void setSelectItem(int selectItem) {
             this.selectItem = selectItem;
+            notifyDataSetChanged();
         }
         @Override
         public int getCount() {
-            return list.size();
+            return titleBeans.size();
         }
 
         @Override
         public Object getItem(int i) {
-            return list.get(i);
+            return titleBeans.get(i);
         }
 
         @Override
@@ -318,7 +334,7 @@ public class TracksFragment extends BaseFragment {
             else {
                 holder.content.setBackgroundColor(Color.WHITE);
             }
-            holder.textView.setText(list.get(i));
+            holder.textView.setText(titleBeans.get(i));
           return view;
         }
         class ViewHolder {
