@@ -79,6 +79,11 @@
                 <action android:name="com.app.test.android.Action_Close"/>
             </intent-filter>
         </receiver>
+        <receiver android:name=".reciver.MyRecevier" android:exported="true">
+            <intent-filter>
+                <action android:name="com.app.ximalaya.recevie"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

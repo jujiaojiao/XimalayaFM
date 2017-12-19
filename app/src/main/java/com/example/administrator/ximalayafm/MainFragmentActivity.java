@@ -2,6 +2,7 @@ package com.example.administrator.ximalayafm;
 
 import android.app.ActionBar;
 import android.app.Notification;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -43,6 +44,7 @@ import com.example.administrator.ximalayafm.fragment.ScheduleFragment;
 import com.example.administrator.ximalayafm.fragment.TracksFragment;
 import com.example.administrator.ximalayafm.fragment.base.BaseFragment;
 import com.example.administrator.ximalayafm.pay.PayActivity;
+import com.example.administrator.ximalayafm.reciver.MyRecevier;
 import com.example.administrator.ximalayafm.util.ToolUtil;
 import com.example.administrator.ximalayafm.view.ViewFindUtils;
 import com.flyco.tablayout.SegmentTabLayout;
@@ -78,6 +80,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.greenrobot.event.EventBus;
+import de.greenrobot.event.Subscribe;
 
 
 /**
@@ -125,6 +128,7 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
     @Override
     protected void onCreate(Bundle arg0) {
         super.onCreate(arg0);
+        EventBus.getDefault().register(this);
         initView();
         String type = getIntent().getStringExtra("type");
         Log.e(TAG, "1111111111111111111: "+type);
@@ -163,8 +167,14 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
 
         Toast.makeText(MainFragmentActivity.this, "" + AccessTokenManager.getInstanse().getUid(), Toast.LENGTH_SHORT).show();
 
-    }
 
+
+    }
+    @Subscribe
+    public void onEvent(String event){
+        Log.e(TAG, "onEvent: 事件传递成功： "+event);
+        initCategoryId(event);
+    }
     @Override
     protected void onDestroy() {
         if (mPlayerManager != null) {
@@ -172,6 +182,7 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
         }
         XmPlayerManager.release();
         CommonRequest.release();
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 
