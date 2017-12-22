@@ -17,6 +17,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,13 +69,14 @@ import java.util.Map;
  *
  */
 public class RadiosFragment extends BaseFragment {
+    public static final String TAG = RadiosFragment.class.getName();
     private int mRadioType = 2;
     private RadioAdapter mRadioAdapter;
     private List<Radio> mRadios = new ArrayList<Radio>();
     private ListView mListView;
     private List<Province> list = new ArrayList<>();
     private Context mContext;
-    private Long provinceCode = 360000l;
+    private Long provinceCode = 110000l;
     private XmPlayerManager mPlayerServiceManager;
 
     private boolean mLoading = false;
@@ -202,6 +204,9 @@ public class RadiosFragment extends BaseFragment {
                     list.addAll(provinces);
                     mListAdapter.notifyDataSetChanged();
                 }
+                for (Province province : provinceList.getProvinceList()) {
+                    Log.e(TAG, "onSuccess: "+province.getProvinceName()+":::::"+province.getProvinceCode() );
+                }
             }
 
             @Override
@@ -223,7 +228,6 @@ public class RadiosFragment extends BaseFragment {
         map.put(DTransferConstants.RADIOTYPE, "" + mRadioType);
         map.put(DTransferConstants.PROVINCECODE, "" + provinceCode);
         CommonRequest.getRadios(map, new IDataCallBack<RadioList>() {
-
             @Override
             public void onSuccess(RadioList object) {
                 if (object != null && object.getRadios() != null) {

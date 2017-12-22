@@ -181,6 +181,7 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
             if ("finish".equals(event)){
                 finish();
             }
+
         }else {
             getSearch(event);
             mViewPager.setCurrentItem(3);
@@ -657,6 +658,8 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
      * @param searchText 要查询的字符串
      */
     public void getSearch(String searchText){
+        search.setText(searchText);
+        search.setSelection(search.length());
         Map<String, String> map = new HashMap<String, String>();
         map.put(DTransferConstants.SEARCH_KEY, searchText);
         CommonRequest.getSearchedTracks(map, new IDataCallBack<SearchTrackList>(){
