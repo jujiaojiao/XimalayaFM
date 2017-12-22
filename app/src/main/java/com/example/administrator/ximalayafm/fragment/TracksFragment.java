@@ -52,6 +52,9 @@ import java.util.Map;
 
 import javax.security.auth.login.LoginException;
 
+import de.greenrobot.event.EventBus;
+import de.greenrobot.event.Subscribe;
+
 /**
  * 点播界面
  */
@@ -209,10 +212,107 @@ public class TracksFragment extends BaseFragment {
             }
         });
     }
-
+    private  Long id =0l;
+    private void initCategoryId(String type){
+        Log.e(TAG, "initCategoryID:type的值" +type);
+        if (type!=null&&type!=""){
+            switch (type) {
+                case "storytelling"://有声书
+                    id = 3l;
+                    break;
+//                case ""://音乐
+//                    id = 2l;
+//                    break;
+                case "entertainment"://娱乐
+                    id = 4l;
+                    break;
+                case "comic"://评书
+                    id = 12l;
+                    break;
+                case"children"://儿童
+                    id = 6l;
+                    break;
+                case"information"://资讯
+                    id = 1l;
+                    break;
+                case"talkshow"://脱口秀
+                    id = 28l;
+                    break;
+                case"emotional"://情感生活
+                    id = 10l;
+                    break;
+                case"humanity"://人文
+                    id = 39l;
+                    break;
+                case"foreignlanguages"://英语
+                    id = 38l;
+                    break;
+                case"littleforeignlanguages"://小语种
+                    id = 32l;
+                    break;
+                case"education"://教育培训
+                    id = 13l;
+                    break;
+                case"broadcastPrograms"://广播剧
+                    id = 15l;
+                    break;
+                case"traditionalopera"://戏曲
+                    id = 16l;
+                    break;
+                case""://国学书院
+                    id = 40l;
+                    break;
+                case"radiostation"://电台
+                    id = 17l;
+                    break;
+                case"finance"://商业财经
+                    id = 8l;
+                    break;
+                case"technology"://IT科技
+                    id = 18l;
+                    break;
+                case"health"://健康养生
+                    id = 7l;
+                    break;
+                case"tourism"://旅游
+                    id = 22l;
+                    break;
+                case"automobile"://汽车
+                    id = 21l;
+                    break;
+                case "animeGame"://动漫
+                    id = 24l;
+                    break;
+                case"movie"://电影
+                    id = 23l;
+                    break;
+                case"partylecture"://党课随声听
+                    id = 41l;
+                    break;
+                case"openclass"://名校公开课
+                    id = 30l;
+                    break;
+                case"fashion"://时尚生活
+                    id = 31l;
+                    break;
+                case"poetry"://诗歌
+                    id = 34l;
+                    break;
+//                case""://其他
+//                    id =11l ;
+//                    break;
+                case "historyHumanism"://历史
+                    id = 9l;
+                    break;
+            }
+            Log.e(TAG, "initCategoryId: "+id );
+        }
+        category_id=id;
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
         View view = inflater.inflate(R.layout.activity_main, container, false);
         mListView = (GridView) view.findViewById(R.id.list);
         listview =(ListView) view.findViewById(R.id.listview);
@@ -225,6 +325,14 @@ public class TracksFragment extends BaseFragment {
             category_id = data;
         }
         return view;
+    }
+    @Subscribe
+    public void onEvent(String event){
+        Log.e(TAG, "onEvent: 事件传递成功： "+event);
+        initCategoryId(event);
+        mPageId = 1;
+        getCategory();
+        loadData();
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -292,6 +400,7 @@ public class TracksFragment extends BaseFragment {
         if (mPlayerManager != null) {
             mPlayerManager.removePlayerStatusListener(mPlayerStatusListener);
         }
+        EventBus.getDefault().unregister(this);
         super.onDestroyView();
     }
     public class ListViewAdapter extends BaseAdapter{

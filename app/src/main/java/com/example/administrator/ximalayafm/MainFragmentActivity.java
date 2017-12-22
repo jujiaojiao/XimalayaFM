@@ -173,7 +173,18 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
     @Subscribe
     public void onEvent(String event){
         Log.e(TAG, "onEvent: 事件传递成功： "+event);
-        initCategoryId(event);
+//        initCategoryId(event);
+        boolean result = event.matches("[a-zA-Z]+");//判断该字符串是否全为英文
+        if (result){
+//            initCategoryId(event);
+            mViewPager.setCurrentItem(0);
+            if ("finish".equals(event)){
+                finish();
+            }
+        }else {
+            getSearch(event);
+            mViewPager.setCurrentItem(3);
+        }
     }
     @Override
     protected void onDestroy() {
@@ -420,15 +431,87 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
                 case "storytelling"://有声书
                     id = 3l;
                     break;
+//                case ""://音乐
+//                    id = 2l;
+//                    break;
+                case "entertainment"://娱乐
+                    id = 4l;
+                    break;
                 case "comic"://评书
                     id = 12l;
+                    break;
+                case"children"://儿童
+                    id = 6l;
+                    break;
+                case"information"://资讯
+                    id = 1l;
+                    break;
+                case"talkshow"://脱口秀
+                    id = 28l;
+                    break;
+                case"emotional"://情感生活
+                    id = 10l;
+                    break;
+                case"humanity"://人文
+                    id = 39l;
+                    break;
+                case"foreignlanguages"://英语
+                    id = 38l;
+                    break;
+                case"littleforeignlanguages"://小语种
+                    id = 32l;
+                    break;
+                case"education"://教育培训
+                    id = 13l;
+                    break;
+                case"broadcastPrograms"://广播剧
+                    id = 15l;
+                    break;
+                case"traditionalopera"://戏曲
+                    id = 16l;
+                    break;
+                case""://国学书院
+                    id = 40l;
+                    break;
+                case"radiostation"://电台
+                    id = 17l;
+                    break;
+                case"finance"://商业财经
+                    id = 8l;
+                    break;
+                case"technology"://IT科技
+                    id = 18l;
+                    break;
+                case"health"://健康养生
+                    id = 7l;
+                    break;
+                case"tourism"://旅游
+                    id = 22l;
+                    break;
+                case"automobile"://汽车
+                    id = 21l;
                     break;
                 case "animeGame"://动漫
                     id = 24l;
                     break;
-                case "finance"://财经
-                    id = 8l;
+                case"movie"://电影
+                    id = 23l;
                     break;
+                case"partylecture"://党课随声听
+                    id = 41l;
+                    break;
+                case"openclass"://名校公开课
+                    id = 30l;
+                    break;
+                case"fashion"://时尚生活
+                    id = 31l;
+                    break;
+                case"poetry"://诗歌
+                    id = 34l;
+                    break;
+//                case""://其他
+//                    id =11l ;
+//                    break;
                 case "historyHumanism"://历史
                     id = 9l;
                     break;
@@ -467,6 +550,7 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
         mDecorView = getWindow().getDecorView();
         tabLayout = ViewFindUtils.find(mDecorView, R.id.indicator);
         mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setOffscreenPageLimit(4);
         //创建Tab
         tl_3();
         //各类监听事件

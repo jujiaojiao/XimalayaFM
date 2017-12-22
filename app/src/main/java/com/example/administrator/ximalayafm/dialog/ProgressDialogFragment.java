@@ -48,18 +48,20 @@ public class ProgressDialogFragment extends DialogFragment{
     }
 
     public static void dismiss(FragmentActivity activity) {
-        FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        Fragment fragment = fragmentManager
-                .findFragmentByTag(ProgressDialogFragment.class.getName());
-        if (!(fragment instanceof ProgressDialogFragment)) {
-            String message = "A fragment in the FragmentManager with tag name "
-                    + ProgressDialogFragment.class.getName() + " is not in "
-                    + ProgressDialogFragment.class.getName();
-            throw new IllegalStateException(message);
-        }
+        if (activity!=null){
+            FragmentManager fragmentManager = activity.getSupportFragmentManager();
+            Fragment fragment = fragmentManager
+                    .findFragmentByTag(ProgressDialogFragment.class.getName());
+            if (!(fragment instanceof ProgressDialogFragment)) {
+                String message = "A fragment in the FragmentManager with tag name "
+                        + ProgressDialogFragment.class.getName() + " is not in "
+                        + ProgressDialogFragment.class.getName();
+                throw new IllegalStateException(message);
+            }
 
-        ProgressDialogFragment dialogFragment = (ProgressDialogFragment) fragment;
-        dialogFragment.dismiss();
+            ProgressDialogFragment dialogFragment = (ProgressDialogFragment) fragment;
+            dialogFragment.dismiss();
+        }
     }
 
     public static boolean isShowing(FragmentActivity activity) {
