@@ -197,6 +197,7 @@ public class TracksFragment extends BaseFragment {
                         df=null;
                     }
                     mTrackAdapter.notifyDataSetChanged();
+                    mPlayerManager.playList(mTrackHotList.getTracks().subList(0 ,1), 0);
                 }else{
                     Toast.makeText(mContext, "该页面暂无数据", Toast.LENGTH_SHORT).show();
                 }

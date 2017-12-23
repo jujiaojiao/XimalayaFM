@@ -230,6 +230,7 @@ public class AlbumListFragment extends BaseFragment {
         });
 
         loadData();
+//        mPlayerManager.playList(mTrackHotList, 0);
     }
 
     @Override

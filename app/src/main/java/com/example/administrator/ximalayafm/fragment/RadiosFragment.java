@@ -55,6 +55,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.greenrobot.event.EventBus;
+import de.greenrobot.event.Subscribe;
 
 
 /**
@@ -141,6 +143,7 @@ public class RadiosFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.live_fragment, container, false);
         mListView = (ListView) view.findViewById(R.id.listview_radios);
         mGridview = ((ListView) view.findViewById(R.id.gridview_radios));
+        EventBus.getDefault().register(this);
         return view;
 
     }
@@ -183,6 +186,7 @@ public class RadiosFragment extends BaseFragment {
         if (mPlayerServiceManager != null) {
             mPlayerServiceManager.removePlayerStatusListener(mPlayerStatusListener);
         }
+        EventBus.getDefault().unregister(this);
         super.onDestroyView();
     }
 
@@ -190,7 +194,37 @@ public class RadiosFragment extends BaseFragment {
     public void refresh() {
         loadRadios();
     }
+    @Subscribe
+    public void onEvent(String event){
+        Log.e(TAG, "onEvent: 事件传递成功： "+event);
+        initCategoryId(event);
+        loadRadios();
+    }
 
+    private void initCategoryId(String event){
+        long id = 110000l;
+        switch (event) {
+            case "beijing":
+                id = 110000l;
+                break;
+            case "tianjing":
+                id = 120000l;
+                break;
+            case "hebei":
+                id = 130000l;
+                break;
+            case "shanxi":
+                id = 140000l;
+                break;
+            case "neimenggu":
+                id = 150000l;
+                break;
+            case "liaoning":
+                id = 210000l;
+                break;
+        }
+        provinceCode = id;
+    }
     /**
      * 获取直播分类
      */
