@@ -181,6 +181,7 @@ public class ScheduleFragment extends BaseFragment {
         viewById.setVisibility(View.GONE);
         Log.e(TAG, "onEvent: "+event.size());
         listDatas = event;
+        mPlayerManager.playList(listDatas, 0);
         Track track = event.get(1);
         Log.e(TAG, "onEvent: 声音名称: " +track.getTrackTitle()+"\n声音简介: "+track.getTrackIntro()
         +"\n声音标签列表:"+track.getTrackTags()+"\n播放数："+track.getPlayCount()+"\n下载次数："+track.getDownloadCount()

@@ -175,6 +175,7 @@ public class RadiosFragment extends BaseFragment {
                 loadRadios();
                 mListAdapter.setSelectItem(i);
                 mListAdapter.notifyDataSetChanged();
+
             }
         });
         getRadiosCategory();
@@ -197,8 +198,8 @@ public class RadiosFragment extends BaseFragment {
     @Subscribe
     public void onEvent(String event){
         Log.e(TAG, "onEvent: 事件传递成功： "+event);
-        initCategoryId(event);
-        loadRadios();
+//        initCategoryId(event);
+//        loadRadios();
     }
 
     private void initCategoryId(String event){
@@ -268,6 +269,7 @@ public class RadiosFragment extends BaseFragment {
                     mRadios.clear();
                     mRadios.addAll(object.getRadios());
                     mRadioAdapter.notifyDataSetChanged();
+                    mPlayerServiceManager.playLiveRadioForSDK(mRadios.get(0) ,-1 , 0);
                 }
                 mLoading = false;
             }

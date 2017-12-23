@@ -329,11 +329,14 @@ public class TracksFragment extends BaseFragment {
     }
     @Subscribe
     public void onEvent(String event){
-        Log.e(TAG, "onEvent: 事件传递成功： "+event);
-        initCategoryId(event);
-        mPageId = 1;
-        getCategory();
-        loadData();
+        boolean result = event.matches("[a-zA-Z]+");
+        if (result){
+            Log.e(TAG, "onEvent: 事件传递成功： "+event);
+            initCategoryId(event);
+            mPageId = 1;
+            getCategory();
+            loadData();
+        }
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
