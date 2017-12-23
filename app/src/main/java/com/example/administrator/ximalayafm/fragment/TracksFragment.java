@@ -207,7 +207,7 @@ public class TracksFragment extends BaseFragment {
             @Override
             public void onError(int code, String message) {
                 progressDialogFragment.dismiss(getActivity());
-                Toast.makeText(mContext, "该页面暂无数据", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "请检查您的网络连接是否正常", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "onError " + code + ", " + message);
                 mLoading = false;
             }
@@ -221,9 +221,9 @@ public class TracksFragment extends BaseFragment {
                 case "storytelling"://有声书
                     id = 3l;
                     break;
-//                case ""://音乐
-//                    id = 2l;
-//                    break;
+                case "music"://音乐
+                    id = 2l;
+                    break;
                 case "entertainment"://娱乐
                     id = 4l;
                     break;
@@ -232,6 +232,9 @@ public class TracksFragment extends BaseFragment {
                     break;
                 case"children"://儿童
                     id = 6l;
+                    break;
+                case "experience"://3D体验馆
+                    id = 29l;
                     break;
                 case"information"://资讯
                     id = 1l;
@@ -260,7 +263,7 @@ public class TracksFragment extends BaseFragment {
                 case"traditionalopera"://戏曲
                     id = 16l;
                     break;
-                case""://国学书院
+                case"sinology"://国学书院
                     id = 40l;
                     break;
                 case"radiostation"://电台
@@ -299,9 +302,9 @@ public class TracksFragment extends BaseFragment {
                 case"poetry"://诗歌
                     id = 34l;
                     break;
-//                case""://其他
-//                    id =11l ;
-//                    break;
+                case"other"://其他
+                    id =11l ;
+                    break;
                 case "historyHumanism"://历史
                     id = 9l;
                     break;
@@ -404,6 +407,7 @@ public class TracksFragment extends BaseFragment {
         if (mPlayerManager != null) {
             mPlayerManager.removePlayerStatusListener(mPlayerStatusListener);
         }
+        XmPlayerManager.release();
         EventBus.getDefault().unregister(this);
         super.onDestroyView();
     }

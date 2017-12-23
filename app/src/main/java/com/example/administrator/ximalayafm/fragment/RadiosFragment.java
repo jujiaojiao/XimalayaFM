@@ -172,10 +172,9 @@ public class RadiosFragment extends BaseFragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 provinceCode = list.get(i).getProvinceCode();
-                loadRadios();
+                loadRadios1();
                 mListAdapter.setSelectItem(i);
                 mListAdapter.notifyDataSetChanged();
-
             }
         });
         getRadiosCategory();
@@ -198,8 +197,8 @@ public class RadiosFragment extends BaseFragment {
     @Subscribe
     public void onEvent(String event){
         Log.e(TAG, "onEvent: 事件传递成功： "+event);
-//        initCategoryId(event);
-//        loadRadios();
+        initCategoryId(event);
+        loadRadios();
     }
 
     private void initCategoryId(String event){
@@ -255,6 +254,35 @@ public class RadiosFragment extends BaseFragment {
      * 加载直播数据
      */
     public void loadRadios() {
+        if (mLoading) {
+            return;
+        }
+        mLoading = true;
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(DTransferConstants.RADIOTYPE, "" + mRadioType);
+        map.put(DTransferConstants.PROVINCECODE, "" + provinceCode);
+        CommonRequest.getRadios(map, new IDataCallBack<RadioList>() {
+            @Override
+            public void onSuccess(RadioList object) {
+                if (object != null && object.getRadios() != null) {
+                    mRadios.clear();
+                    mRadios.addAll(object.getRadios());
+                    mRadioAdapter.notifyDataSetChanged();
+//                    mPlayerServiceManager.playLiveRadioForSDK(mRadios.get(0) ,-1 , 0);
+                }
+                mLoading = false;
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                mLoading = false;
+            }
+        });
+    }
+    /**
+     * 加载直播数据
+     */
+    public void loadRadios1() {
         if (mLoading) {
             return;
         }

@@ -187,14 +187,29 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
             mViewPager.setCurrentItem(3);
         }
     }
+
     @Override
-    protected void onDestroy() {
+    protected void onStop() {
+        super.onStop();
+        Log.e("ysan:喜马拉雅", "onStop");
+
         if (mPlayerManager != null) {
             mPlayerManager.removePlayerStatusListener(mPlayerStatusListener);
         }
         XmPlayerManager.release();
         CommonRequest.release();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+//        Log.e("ysan:喜马拉雅", "onDestroy");
+//        if (mPlayerManager != null) {
+//            mPlayerManager.removePlayerStatusListener(mPlayerStatusListener);
+//        }
+//        XmPlayerManager.release();
+//        CommonRequest.release();
+//        EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 
@@ -432,9 +447,9 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
                 case "storytelling"://有声书
                     id = 3l;
                     break;
-//                case ""://音乐
-//                    id = 2l;
-//                    break;
+                case "mucic"://音乐
+                    id = 2l;
+                    break;
                 case "entertainment"://娱乐
                     id = 4l;
                     break;
@@ -443,6 +458,9 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
                     break;
                 case"children"://儿童
                     id = 6l;
+                    break;
+                case "experience"://3D体验馆
+                    id = 29l;
                     break;
                 case"information"://资讯
                     id = 1l;
@@ -471,7 +489,7 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
                 case"traditionalopera"://戏曲
                     id = 16l;
                     break;
-                case""://国学书院
+                case"sinology"://国学书院
                     id = 40l;
                     break;
                 case"radiostation"://电台
@@ -510,9 +528,9 @@ public class MainFragmentActivity extends FragmentActivity implements View.OnKey
                 case"poetry"://诗歌
                     id = 34l;
                     break;
-//                case""://其他
-//                    id =11l ;
-//                    break;
+                case"other"://其他
+                    id =11l ;
+                    break;
                 case "historyHumanism"://历史
                     id = 9l;
                     break;
