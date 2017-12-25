@@ -158,7 +158,7 @@ public class TracksFragment extends BaseFragment {
                         hashMap.put(category.getId(),category.getCategoryName());
                         titleBeans.add(category.getCategoryName());
                     }
-                    setListViewSelect();
+//                    setListViewSelect();
                 }
             }
             @Override
@@ -337,7 +337,8 @@ public class TracksFragment extends BaseFragment {
             Log.e(TAG, "onEvent: 事件传递成功： "+event);
             initCategoryId(event);
             mPageId = 1;
-            getCategory();
+//            getCategory();
+            setListViewSelect();
             loadData();
         }
     }
